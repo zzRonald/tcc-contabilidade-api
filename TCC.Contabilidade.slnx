@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TCC.Contabilidade.API/TCC.Contabilidade.API.csproj" />
+    <Project Path="src/TCC.Contabilidade.Application/TCC.Contabilidade.Application.csproj" />
+    <Project Path="src/TCC.Contabilidade.Domain/TCC.Contabilidade.Domain.csproj" />
+    <Project Path="src/TCC.Contabilidade.Infrastructure/TCC.Contabilidade.Infrastructure.csproj" />
+  </Folder>
+</Solution>
