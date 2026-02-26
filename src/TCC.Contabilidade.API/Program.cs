@@ -1,13 +1,43 @@
+using Microsoft.EntityFrameworkCore;
+using TCC.Contabilidade.Application.Interfaces;
+using TCC.Contabilidade.Application.Services;
+using TCC.Contabilidade.Infrastructure.Data;
+using TCC.Contabilidade.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// =============================
+// 1. Configuração do Banco de Dados
+// =============================
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
+
+// =============================
+// 2. Injeção de Dependência (Sua correção principal aqui!)
+// =============================
+// Interface -> Implementação
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+// Serviços da Camada de Application
+builder.Services.AddScoped<UserService>();
+
+// =============================
+// 3. Controllers e Swagger
+// =============================
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "TCC Contabilidade API", Version = "v1" });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// =============================
+// 4. Configure Middleware
+// =============================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -16,29 +46,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Importante: Authentication vem SEMPRE antes de Authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
