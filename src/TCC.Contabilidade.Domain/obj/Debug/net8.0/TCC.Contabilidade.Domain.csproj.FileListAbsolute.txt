@@ -1,0 +1,12 @@
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\bin\Debug\net8.0\TCC.Contabilidade.Domain.deps.json
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\bin\Debug\net8.0\TCC.Contabilidade.Domain.dll
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\bin\Debug\net8.0\TCC.Contabilidade.Domain.pdb
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\TCC.Contabilidade.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\TCC.Contabilidade.Domain.AssemblyInfoInputs.cache
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\TCC.Contabilidade.Domain.AssemblyInfo.cs
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\TCC.Contabilidade.Domain.csproj.CoreCompileInputs.cache
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\TCC.Contabilidade.Domain.sourcelink.json
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\TCC.Contabilidade.Domain.dll
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\refint\TCC.Contabilidade.Domain.dll
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\TCC.Contabilidade.Domain.pdb
+C:\Users\ronal\source\repos\tcc-contabilidade-api\src\TCC.Contabilidade.Domain\obj\Debug\net8.0\ref\TCC.Contabilidade.Domain.dll
