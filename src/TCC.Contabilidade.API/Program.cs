@@ -11,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 // =============================
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("TCC.Contabilidade.Infrastructure")
     ));
 
 // =============================
@@ -19,6 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // =============================
 // Interface -> Implementação
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IConviteRepository, ConviteRepository>();
+builder.Services.AddScoped<ConviteService>();
 
 // Serviços da Camada de Application
 builder.Services.AddScoped<UserService>();
@@ -29,6 +32,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
+
 {
     c.SwaggerDoc("v1", new() { Title = "TCC Contabilidade API", Version = "v1" });
 });

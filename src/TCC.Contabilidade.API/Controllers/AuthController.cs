@@ -21,14 +21,25 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
-    // POST: api/auth/register
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         try
         {
-            var usuario = await _userService.RegisterAsync(request.Nome, request.Email, request.Senha, request.Perfil);
-            return Ok(new { usuario.Id, usuario.Nome, usuario.Email, usuario.Perfil });
+            User usuario = await _userService.RegisterAsync(
+                request.Nome,
+                request.Email,
+                request.Senha,
+                request.Perfil
+            );
+
+            return Ok(new
+            {
+                usuario.Id,
+                usuario.Nome,
+                usuario.Email,
+                TipoUsuario = usuario.TipoUsuario.ToString()
+            });
         }
         catch (Exception ex)
         {
@@ -36,39 +47,60 @@ public class AuthController : ControllerBase
         }
     }
 
-    // POST: api/auth/login
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var usuario = await _userService.AuthenticateAsync(request.Email, request.Senha);
+
         if (usuario == null)
             return Unauthorized(new { message = "Email ou senha inválidos" });
 
         var token = GenerateJwtToken(usuario);
-        return Ok(new { token });
+
+        return Ok(new
+        {
+            token,
+            usuario = new
+            {
+                usuario.Id,
+                usuario.Nome,
+                usuario.Email,
+                TipoUsuario = usuario.TipoUsuario.ToString()
+            }
+        });
     }
 
-    // Gera JWT
-    private string GenerateJwtToken(Usuario usuario)
+    private string GenerateJwtToken(User usuario)
     {
-        var keyBytes = Encoding.ASCII.GetBytes(_config["JwtKey"] ?? "MinhaChaveSuperSecretaParaJWT_ChangeThis");
+        var key = Encoding.ASCII.GetBytes(
+            _config["JwtKey"] ?? "MinhaChaveSuperSecretaParaJWT_ChangeThis"
+        );
+
         var tokenHandler = new JwtSecurityTokenHandler();
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new Claim(ClaimTypes.Name, usuario.Nome),
-                new Claim(ClaimTypes.Role, usuario.Perfil)
+                new Claim(ClaimTypes.Role, usuario.TipoUsuario.ToString())
             }),
+
             Expires = DateTime.UtcNow.AddHours(4),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
+
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature
+            )
         };
+
         var token = tokenHandler.CreateToken(tokenDescriptor);
+
         return tokenHandler.WriteToken(token);
     }
 
-    // Models de requisição
     public record RegisterRequest(string Nome, string Email, string Senha, string Perfil);
+
     public record LoginRequest(string Email, string Senha);
 }
