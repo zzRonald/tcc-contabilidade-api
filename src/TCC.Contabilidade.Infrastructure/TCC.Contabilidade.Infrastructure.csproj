@@ -14,6 +14,10 @@
     <ProjectReference Include="..\TCC.Contabilidade.Application\TCC.Contabilidade.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

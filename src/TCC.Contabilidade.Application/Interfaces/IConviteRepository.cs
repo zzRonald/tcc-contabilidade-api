@@ -2,9 +2,9 @@
 
 namespace TCC.Contabilidade.Application.Interfaces;
 
-public interface IUsuarioRepository
+public interface IConviteRepository
 {
-    Task<User?> ObterPorEmailAsync(string email);
-    Task AdicionarAsync(User usuario);
+    Task AdicionarAsync(Convite convite);
+    Task<Convite?> ObterPorTokenAsync(string token);
     Task SalvarAlteracoesAsync();
 }

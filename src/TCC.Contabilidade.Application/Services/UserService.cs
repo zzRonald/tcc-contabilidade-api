@@ -1,6 +1,7 @@
-﻿using TCC.Contabilidade.Domain.Entities;
+﻿using BCrypt.Net;
 using TCC.Contabilidade.Application.Interfaces; // Adicionado para usar a Interface
-using BCrypt.Net;
+using TCC.Contabilidade.Domain.Entities;
+using TCC.Contabilidade.Domain.Enums;
 
 namespace TCC.Contabilidade.Application.Services;
 
@@ -15,7 +16,7 @@ public class UserService
     }
 
     // Registrar usuário
-    public async Task<Usuario> RegisterAsync(string nome, string email, string senha, string perfil)
+    public async Task<User> RegisterAsync(string nome, string email, string senha, string perfil)
     {
         if (string.IsNullOrWhiteSpace(nome)) throw new ArgumentException("Nome é obrigatório", nameof(nome));
         if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email é obrigatório", nameof(email));
@@ -30,7 +31,9 @@ public class UserService
         // Hash da senha
         string senhaHash = BCrypt.Net.BCrypt.HashPassword(senha);
 
-        var usuario = new Usuario(nome, email, senhaHash, perfil);
+        var tipoUsuario = Enum.Parse<TipoUsuario>(perfil, true);
+
+        var usuario = new User(nome, email, senhaHash, tipoUsuario);
 
         // Adiciona e salva através da Interface
         await _usuarioRepository.AdicionarAsync(usuario);
@@ -40,7 +43,7 @@ public class UserService
     }
 
     // Validar login e senha
-    public async Task<Usuario?> AuthenticateAsync(string email, string senha)
+    public async Task<User?> AuthenticateAsync(string email, string senha)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(senha))
             return null;

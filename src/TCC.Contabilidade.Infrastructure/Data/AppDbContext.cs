@@ -10,13 +10,16 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<User> Usuarios { get; set; }
+
+    // ADICIONE ISSO
+    public DbSet<Convite> Convites { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Usuario>(entity =>
+        modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(u => u.Id);
 
@@ -31,9 +34,8 @@ public class AppDbContext : DbContext
             entity.Property(u => u.SenhaHash)
                 .IsRequired();
 
-            entity.Property(u => u.Perfil)
-                .IsRequired()
-                .HasMaxLength(50);
+            entity.Property(u => u.TipoUsuario)
+                .IsRequired();
         });
     }
 }
