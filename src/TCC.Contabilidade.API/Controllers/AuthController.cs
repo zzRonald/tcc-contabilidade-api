@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TCC.Contabilidade.Application.DTOs;
 using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Domain.Entities;
 
@@ -44,6 +45,35 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("register-with-invite")]
+    public async Task<IActionResult> RegisterWithInvite(
+    [FromBody] RegisterWithInviteRequest request)
+    {
+        try
+        {
+            var user = await _userService.RegisterWithInviteAsync(
+                request.InvitationToken,
+                request.Nome,
+                request.Email,
+                request.Senha
+            );
+
+            return Ok(new
+            {
+                message = "Cliente registrado com sucesso",
+                user.Id,
+                user.Email
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
         }
     }
 

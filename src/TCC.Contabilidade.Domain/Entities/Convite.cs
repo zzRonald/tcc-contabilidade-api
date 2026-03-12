@@ -8,6 +8,8 @@ public class Convite
 
     public string Token { get; set; }
 
+    public bool Utilizado { get; set; }
+
     public Guid ContadorId { get; set; }
 
     public DateTime Expiracao { get; set; }

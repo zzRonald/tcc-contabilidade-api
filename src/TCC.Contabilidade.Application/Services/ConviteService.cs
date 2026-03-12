@@ -12,6 +12,11 @@ public class ConviteService
         _conviteRepository = conviteRepository;
     }
 
+    public async Task<Convite?> ObterConvitePorTokenAsync(string token)
+    {
+        return await _conviteRepository.ObterPorTokenAsync(token);
+    }
+
     public async Task<string> CriarConviteAsync(string emailCliente, Guid contadorId)
     {
         var token = Guid.NewGuid().ToString();
@@ -31,4 +36,6 @@ public class ConviteService
 
         return token;
     }
+
+
 }
