@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TCC.Contabilidade.Application.DTOs;
 
-namespace TCC.Contabilidade.Application.DTO
+public class RegisterWithInviteRequest
 {
-    internal class RegisterWithInviteRequest
-    {
-    }
+    public string InvitationToken { get; set; } = string.Empty;
+
+    public string Nome { get; set; } = string.Empty;
+
+    public string Email { get; set; } = string.Empty;
+
+    public string Senha { get; set; } = string.Empty;
 }
