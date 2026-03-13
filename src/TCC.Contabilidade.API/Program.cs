@@ -35,6 +35,22 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = false,
         ValidateAudience = false
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnForbidden = async context =>
+        {
+            context.Response.StatusCode = 403;
+            context.Response.ContentType = "application/json";
+
+            var result = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                mensagem = "Seu nível de acesso não permite a criação de convites. Apenas contadores podem realizar essa operação."
+            });
+
+            await context.Response.WriteAsync(result);
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
