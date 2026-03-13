@@ -7,6 +7,7 @@ namespace TCC.Contabilidade.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Contador")]
 public class ConvitesController : ControllerBase
 {
     private readonly ConviteService _conviteService;
@@ -16,17 +17,26 @@ public class ConvitesController : ControllerBase
         _conviteService = conviteService;
     }
 
-    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CriarConvite([FromBody] CriarConviteRequest request)
     {
-        var contadorId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null)
+        {
+            return Unauthorized(new
+            {
+                mensagem = "Não foi possível identificar o usuário autenticado."
+            });
+        }
+
+        var contadorId = Guid.Parse(userIdClaim.Value);
 
         var token = await _conviteService.CriarConviteAsync(request.EmailCliente, contadorId);
 
         return Ok(new
         {
-            mensagem = "Convite criado com sucesso",
+            mensagem = "Convite criado com sucesso. O cliente poderá utilizar o token para realizar o cadastro no sistema.",
             token
         });
     }
