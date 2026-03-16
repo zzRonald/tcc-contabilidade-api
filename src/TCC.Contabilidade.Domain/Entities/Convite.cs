@@ -4,9 +4,9 @@ public class Convite
 {
     public Guid Id { get; set; }
 
-    public string EmailCliente { get; set; }
+    public string EmailCliente { get; set; } = string.Empty;
 
-    public string Token { get; set; }
+    public string Token { get; set; } = string.Empty;
 
     public bool Utilizado { get; set; }
 
