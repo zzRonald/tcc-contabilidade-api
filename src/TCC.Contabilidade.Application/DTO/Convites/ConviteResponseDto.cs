@@ -8,9 +8,9 @@ namespace TCC.Contabilidade.Application.DTOs.Convites
 {
     public class ConviteResponseDto
     {
-        public string Token { get; set; }
+        public string Token { get; set; } = string.Empty;
 
-        public string EmailDestino { get; set; }
+        public string EmailDestino { get; set; } = string.Empty;
 
         public DateTime DataExpiracao { get; set; }
 
