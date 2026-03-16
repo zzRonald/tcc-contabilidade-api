@@ -12,8 +12,10 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Usuarios { get; set; }
 
-    // ADICIONE ISSO
     public DbSet<Convite> Convites { get; set; }
+
+    // 🔹 ADICIONAR ISSO
+    public DbSet<Empresa> Empresas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,6 +38,28 @@ public class AppDbContext : DbContext
 
             entity.Property(u => u.TipoUsuario)
                 .IsRequired();
+        });
+
+        // 🔹 CONFIGURAÇÃO DA EMPRESA
+        modelBuilder.Entity<Empresa>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Nome)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(e => e.CNPJ)
+                .IsRequired()
+                .HasMaxLength(14);
+
+            entity.HasIndex(e => e.CNPJ)
+                .IsUnique();
+
+            entity.HasOne(e => e.Cliente)
+                .WithMany()
+                .HasForeignKey(e => e.ClienteId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

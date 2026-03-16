@@ -8,9 +8,7 @@ public class Empresa
 
     public string CNPJ { get; set; } = string.Empty;
 
-    // Foreign Key
     public Guid ClienteId { get; set; }
 
-    // Navegação EF Core
     public User? Cliente { get; set; }
 }

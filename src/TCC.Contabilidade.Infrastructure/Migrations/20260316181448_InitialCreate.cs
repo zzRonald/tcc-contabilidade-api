@@ -18,6 +18,7 @@ namespace TCC.Contabilidade.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     EmailCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Utilizado = table.Column<bool>(type: "bit", nullable: false),
                     ContadorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Expiracao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Usado = table.Column<bool>(type: "bit", nullable: false)
@@ -50,6 +51,37 @@ namespace TCC.Contabilidade.Infrastructure.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Empresas",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    CNPJ = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
+                    ClienteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Empresas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Empresas_Usuarios_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Empresas_ClienteId",
+                table: "Empresas",
+                column: "ClienteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Empresas_CNPJ",
+                table: "Empresas",
+                column: "CNPJ",
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_ContadorId",
                 table: "Usuarios",
@@ -61,6 +93,9 @@ namespace TCC.Contabilidade.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Convites");
+
+            migrationBuilder.DropTable(
+                name: "Empresas");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");

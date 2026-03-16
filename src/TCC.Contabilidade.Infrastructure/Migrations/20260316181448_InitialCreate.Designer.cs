@@ -12,8 +12,8 @@ using TCC.Contabilidade.Infrastructure.Data;
 namespace TCC.Contabilidade.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260316165035_AddEmpresaEntity")]
-    partial class AddEmpresaEntity
+    [Migration("20260316181448_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,6 +56,35 @@ namespace TCC.Contabilidade.Infrastructure.Migrations
                     b.ToTable("Convites");
                 });
 
+            modelBuilder.Entity("TCC.Contabilidade.Domain.Entities.Empresa", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CNPJ")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
+                    b.Property<Guid>("ClienteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CNPJ")
+                        .IsUnique();
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("Empresas");
+                });
+
             modelBuilder.Entity("TCC.Contabilidade.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -94,6 +123,17 @@ namespace TCC.Contabilidade.Infrastructure.Migrations
                     b.HasIndex("ContadorId");
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("TCC.Contabilidade.Domain.Entities.Empresa", b =>
+                {
+                    b.HasOne("TCC.Contabilidade.Domain.Entities.User", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("TCC.Contabilidade.Domain.Entities.User", b =>

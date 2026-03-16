@@ -11,6 +11,7 @@ using TCC.Contabilidade.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // =============================
 // JWT CONFIG
 // =============================
@@ -45,7 +46,7 @@ builder.Services.AddAuthentication(options =>
 
             var result = System.Text.Json.JsonSerializer.Serialize(new
             {
-                mensagem = "Seu nível de acesso não permite a criação de convites. Apenas contadores podem realizar essa operação."
+                mensagem = "Seu nível de acesso não permite esta operação."
             });
 
             await context.Response.WriteAsync(result);
@@ -54,6 +55,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
 
 // =============================
 // DATABASE
@@ -65,6 +67,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         b => b.MigrationsAssembly("TCC.Contabilidade.Infrastructure")
     ));
 
+
 // =============================
 // DEPENDENCY INJECTION
 // =============================
@@ -75,13 +78,18 @@ builder.Services.AddScoped<IConviteRepository, ConviteRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ConviteService>();
 
+// 🔹 ADICIONAR PARA EMPRESAS
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<EmpresaService>();
+
+
 // =============================
 // CONTROLLERS
 // =============================
 
 builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
+
 
 // =============================
 // SWAGGER + JWT
@@ -121,7 +129,9 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
 var app = builder.Build();
+
 
 // =============================
 // MIDDLEWARE
@@ -135,7 +145,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// IMPORTANTE: ordem correta
+// ordem correta
 app.UseAuthentication();
 app.UseAuthorization();
 
