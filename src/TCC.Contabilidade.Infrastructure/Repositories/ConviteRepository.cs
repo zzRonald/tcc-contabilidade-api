@@ -25,6 +25,13 @@ public class ConviteRepository : IConviteRepository
             .FirstOrDefaultAsync(c => c.Token == token);
     }
 
+    public async Task<List<Convite>> GetByContadorId(Guid contadorId)
+    {
+        return await _context.Convites
+            .Where(c => c.ContadorId == contadorId)
+            .ToListAsync();
+    }
+
     public async Task SalvarAlteracoesAsync()
     {
         await _context.SaveChangesAsync();

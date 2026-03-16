@@ -6,5 +6,8 @@ public interface IConviteRepository
 {
     Task AdicionarAsync(Convite convite);
     Task<Convite?> ObterPorTokenAsync(string token);
+    Task<List<Convite>> GetByContadorId(Guid contadorId);
     Task SalvarAlteracoesAsync();
 }
+
+   
