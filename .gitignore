@@ -1,5 +1,23 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio
 .vs/
-[Bb]in/
-[Oo]bj/
 *.user
-.vscode/
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
