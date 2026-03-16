@@ -37,5 +37,8 @@ public class ConviteService
         return token;
     }
 
-
+    public async Task<List<Convite>> GetConvitesByContadorIdAsync(Guid contadorId)
+    {
+        return await _conviteRepository.GetByContadorId(contadorId);
+    }
 }

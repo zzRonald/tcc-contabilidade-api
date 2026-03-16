@@ -41,5 +41,25 @@ public class ConvitesController : ControllerBase
         });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ListarConvites()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null)
+        {
+            return Unauthorized(new
+            {
+                mensagem = "Não foi possível identificar o usuário autenticado."
+            });
+        }
+
+        var contadorId = Guid.Parse(userIdClaim.Value);
+
+        var convites = await _conviteService.GetConvitesByContadorIdAsync(contadorId);
+
+        return Ok(convites);
+    }
+
     public record CriarConviteRequest(string EmailCliente);
 }
