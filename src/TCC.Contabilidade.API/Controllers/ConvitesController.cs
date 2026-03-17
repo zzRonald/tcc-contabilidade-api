@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TCC.Contabilidade.Application.Services;
+using TCC.Contabilidade.Application.DTOs;
+using TCC.Contabilidade.Application.DTOs.Convites;
 
 namespace TCC.Contabilidade.API.Controllers;
 
@@ -17,49 +19,51 @@ public class ConvitesController : ControllerBase
         _conviteService = conviteService;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CriarConvite([FromBody] CriarConviteRequest request)
+    private Guid GetUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
         if (userIdClaim == null)
+            throw new Exception("Não foi possível identificar o usuário autenticado.");
+
+        return Guid.Parse(userIdClaim.Value);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CriarConvite([FromBody] CreateConviteDto dto)
+    {
+        if (!ModelState.IsValid)
         {
-            return Unauthorized(new
-            {
-                mensagem = "Não foi possível identificar o usuário autenticado."
-            });
+            var erros = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage);
+
+            return BadRequest(ApiResponseDTO<IEnumerable<string>>.Fail(
+                string.Join(" | ", erros),
+                400
+            ));
         }
 
-        var contadorId = Guid.Parse(userIdClaim.Value);
+        var contadorId = GetUserId();
 
-        var token = await _conviteService.CriarConviteAsync(request.EmailCliente, contadorId);
+        var token = await _conviteService.CriarConviteAsync(dto.EmailDestino, contadorId);
 
-        return Ok(new
-        {
-            mensagem = "Convite criado com sucesso. O cliente poderá utilizar o token para realizar o cadastro no sistema.",
-            token
-        });
+        return Ok(ApiResponseDTO<object>.Success(
+            new { token },
+            "Convite criado com sucesso. O cliente poderá utilizar o token para realizar o cadastro."
+        ));
     }
 
     [HttpGet]
     public async Task<IActionResult> ListarConvites()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null)
-        {
-            return Unauthorized(new
-            {
-                mensagem = "Não foi possível identificar o usuário autenticado."
-            });
-        }
-
-        var contadorId = Guid.Parse(userIdClaim.Value);
+        var contadorId = GetUserId();
 
         var convites = await _conviteService.GetConvitesByContadorIdAsync(contadorId);
 
-        return Ok(convites);
+        return Ok(ApiResponseDTO<object>.Success(
+            convites,
+            "Convites listados com sucesso."
+        ));
     }
-
-    public record CriarConviteRequest(string EmailCliente);
 }
