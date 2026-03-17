@@ -1,13 +1,13 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-
 using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Infrastructure.Data;
 using TCC.Contabilidade.Infrastructure.Repositories;
+using TCC.Contabilidade.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 // JWT CONFIG
 // =============================
 
-var key = Encoding.ASCII.GetBytes("MinhaChaveSuperSecretaParaJWT_ChangeThis");
+var key = Encoding.ASCII.GetBytes(
+    builder.Configuration["Jwt:Key"] ?? "MinhaChaveSuperSecretaParaJWT_ChangeThis"
+);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -89,6 +91,8 @@ builder.Services.AddScoped<EmpresaService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
 
 
 // =============================
@@ -145,9 +149,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// ordem correta
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+//  RATE LIMITING 
+app.UseMiddleware<TCC.Contabilidade.API.Middlewares.RateLimitMiddleware>();
 
 app.MapControllers();
 
