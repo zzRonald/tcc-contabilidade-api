@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Application.DTO.Empresas;
+using TCC.Contabilidade.Application.DTOs;
+using TCC.Contabilidade.Application.Services;
 
 namespace TCC.Contabilidade.API.Controllers;
 
@@ -27,27 +28,35 @@ public class EmpresasController : ControllerBase
     public async Task<IActionResult> Create(CreateEmpresaDto dto)
     {
         await _service.Create(dto, GetUserId());
-        return Ok();
+
+        return Ok(ApiResponseDTO<object>
+            .Success(null!, "Empresa criada com sucesso"));
     }
 
     [HttpGet]
     public async Task<IActionResult> Get()
     {
         var empresas = await _service.GetAll(GetUserId());
-        return Ok(empresas);
+
+        return Ok(ApiResponseDTO<IEnumerable<EmpresaResponseDto>>
+            .Success(empresas, "Empresas listadas com sucesso"));
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, UpdateEmpresaDto dto)
     {
         await _service.Update(id, dto, GetUserId());
-        return Ok();
+
+        return Ok(ApiResponseDTO<object>
+            .Success(null!, "Empresa atualizada com sucesso"));
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _service.Delete(id, GetUserId());
-        return Ok();
+
+        return Ok(ApiResponseDTO<object>
+            .Success(null!, "Empresa removida com sucesso"));
     }
 }

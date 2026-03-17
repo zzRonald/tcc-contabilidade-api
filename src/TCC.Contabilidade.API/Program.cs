@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using TCC.Contabilidade.API.Middlewares;
 using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Infrastructure.Data;
@@ -151,6 +152,7 @@ app.UseHttpsRedirection();
 
 
 app.UseAuthentication();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthorization();
 
 //  RATE LIMITING 
