@@ -1,7 +1,4 @@
 
-<p align="center">
-<img width="400" height="484" alt="image" src="https://github.com/user-attachments/assets/76bf8451-add4-4948-b679-1062cd6034af" />
-</p>
 
 <h1 align="center">📊 TCC — Plataforma de Gestão Contábil Multi-Tenant</h1>
 
