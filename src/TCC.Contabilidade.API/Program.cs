@@ -7,6 +7,7 @@ using TCC.Contabilidade.API.Middlewares;
 using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Infrastructure.Data;
+using TCC.Contabilidade.Infrastructure.Integrations;
 using TCC.Contabilidade.Infrastructure.Repositories;
 using TCC.Contabilidade.Infrastructure.Services;
 
@@ -81,9 +82,12 @@ builder.Services.AddScoped<IConviteRepository, ConviteRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ConviteService>();
 
-// 🔹 ADICIONAR PARA EMPRESAS
+//  ADICIONAR PARA EMPRESAS
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<EmpresaService>();
+builder.Services.AddHttpClient<CnpjApiClient>();
+builder.Services.AddScoped<CnpjService>();
+builder.Services.AddHttpClient<ICnpjApiClient, CnpjApiClient>();
 
 
 // =============================
