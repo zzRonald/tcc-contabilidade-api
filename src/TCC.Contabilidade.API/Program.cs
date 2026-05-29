@@ -78,9 +78,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IConviteRepository, ConviteRepository>();
+builder.Services.AddScoped<ICompanyConfigRepository, CompanyConfigRepository>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ConviteService>();
+builder.Services.AddScoped<CompanyConfigService>();
 
 //  ADICIONAR PARA EMPRESAS
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();

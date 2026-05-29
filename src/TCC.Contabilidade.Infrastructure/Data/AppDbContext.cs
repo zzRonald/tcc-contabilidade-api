@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
 
     public DbSet<UsuarioEmpresa> UsuariosEmpresas { get; set; }
 
+    public DbSet<CompanyConfig> CompanyConfigs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -77,6 +79,28 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(ue => new { ue.UsuarioId, ue.EmpresaId }).IsUnique();
+        });
+
+        modelBuilder.Entity<CompanyConfig>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+
+            entity.Property(c => c.MoedaPadrao)
+                .HasMaxLength(10)
+                .IsRequired();
+
+            entity.Property(c => c.FormatoData)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(c => c.Timezone)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.HasOne(c => c.Empresa)
+                .WithOne(e => e.Config)
+                .HasForeignKey<CompanyConfig>(c => c.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
