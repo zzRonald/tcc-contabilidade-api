@@ -14,8 +14,9 @@ public class AppDbContext : DbContext
 
     public DbSet<Convite> Convites { get; set; }
 
-    // 🔹 ADICIONAR ISSO
     public DbSet<Empresa> Empresas { get; set; }
+
+    public DbSet<UsuarioEmpresa> UsuariosEmpresas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,9 +39,13 @@ public class AppDbContext : DbContext
 
             entity.Property(u => u.TipoUsuario)
                 .IsRequired();
+
+            entity.HasOne(u => u.Contador)
+                .WithMany(u => u.Clientes)
+                .HasForeignKey(u => u.ContadorId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // 🔹 CONFIGURAÇÃO DA EMPRESA
         modelBuilder.Entity<Empresa>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -55,11 +60,23 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(e => e.CNPJ)
                 .IsUnique();
+        });
 
-            entity.HasOne(e => e.Cliente)
-                .WithMany()
-                .HasForeignKey(e => e.ClienteId)
-                .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<UsuarioEmpresa>(entity =>
+        {
+            entity.HasKey(ue => ue.Id);
+
+            entity.HasOne(ue => ue.Usuario)
+                .WithMany(u => u.UsuariosEmpresas)
+                .HasForeignKey(ue => ue.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(ue => ue.Empresa)
+                .WithMany(e => e.UsuariosEmpresas)
+                .HasForeignKey(ue => ue.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(ue => new { ue.UsuarioId, ue.EmpresaId }).IsUnique();
         });
     }
 }

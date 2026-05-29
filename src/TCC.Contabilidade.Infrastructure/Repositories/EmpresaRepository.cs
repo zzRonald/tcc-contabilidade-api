@@ -20,17 +20,23 @@ public class EmpresaRepository : IEmpresaRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<Empresa>> GetAllByClienteId(Guid clienteId)
+    public async Task<List<Empresa>> GetAllByUsuarioId(Guid usuarioId)
     {
-        return await _context.Empresas
+        return await _context.UsuariosEmpresas
             .AsNoTracking()
-            .Where(e => e.ClienteId == clienteId)
+            .Where(ue => ue.UsuarioId == usuarioId)
+            .Select(ue => ue.Empresa!)
             .ToListAsync();
     }
 
     public async Task<Empresa?> GetById(Guid id)
     {
         return await _context.Empresas.FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+    public async Task<Empresa?> GetByCnpjAsync(string cnpj)
+    {
+        return await _context.Empresas.FirstOrDefaultAsync(e => e.CNPJ == cnpj);
     }
 
     public async Task<bool> CnpjExists(string cnpj)
@@ -48,5 +54,16 @@ public class EmpresaRepository : IEmpresaRepository
     {
         _context.Empresas.Remove(empresa);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task AddUsuarioEmpresaAsync(UsuarioEmpresa usuarioEmpresa)
+    {
+        await _context.UsuariosEmpresas.AddAsync(usuarioEmpresa);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> IsUsuarioVinculadoAsync(Guid usuarioId, Guid empresaId)
+    {
+        return await _context.UsuariosEmpresas.AnyAsync(ue => ue.UsuarioId == usuarioId && ue.EmpresaId == empresaId);
     }
 }

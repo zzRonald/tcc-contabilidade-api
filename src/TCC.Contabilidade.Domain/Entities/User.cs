@@ -22,7 +22,9 @@ public class User
 
     public User? Contador { get; set; }
 
-    public ICollection<User>? Clientes { get; set; }
+    public ICollection<User> Clientes { get; set; } = new List<User>();
+
+    public ICollection<UsuarioEmpresa> UsuariosEmpresas { get; set; } = new List<UsuarioEmpresa>();
 
     public User() { }
 

@@ -13,25 +13,36 @@ public class EmpresaService
         _repository = repository;
     }
 
-    public async Task Create(CreateEmpresaDto dto, Guid clienteId)
+    public async Task Create(CreateEmpresaDto dto, Guid usuarioId)
     {
-        if (await _repository.CnpjExists(dto.CNPJ))
-            throw new Exception("CNPJ já cadastrado.");
+        var empresa = await _repository.GetByCnpjAsync(dto.CNPJ);
 
-        var empresa = new Empresa
+        if (empresa == null)
         {
-            Id = Guid.NewGuid(),
-            Nome = dto.Nome,
-            CNPJ = dto.CNPJ,
-            ClienteId = clienteId
-        };
+            empresa = new Empresa
+            {
+                Id = Guid.NewGuid(),
+                Nome = dto.Nome,
+                CNPJ = dto.CNPJ
+            };
+            await _repository.AddAsync(empresa);
+        }
 
-        await _repository.AddAsync(empresa);
+        if (!await _repository.IsUsuarioVinculadoAsync(usuarioId, empresa.Id))
+        {
+            var vinculou = new UsuarioEmpresa
+            {
+                Id = Guid.NewGuid(),
+                UsuarioId = usuarioId,
+                EmpresaId = empresa.Id
+            };
+            await _repository.AddUsuarioEmpresaAsync(vinculou);
+        }
     }
 
-    public async Task<List<EmpresaResponseDto>> GetAll(Guid clienteId)
+    public async Task<List<EmpresaResponseDto>> GetAll(Guid usuarioId)
     {
-        var empresas = await _repository.GetAllByClienteId(clienteId);
+        var empresas = await _repository.GetAllByUsuarioId(usuarioId);
 
         return empresas.Select(e => new EmpresaResponseDto
         {
@@ -41,15 +52,19 @@ public class EmpresaService
         }).ToList();
     }
 
-    public async Task Update(Guid id, UpdateEmpresaDto dto, Guid clienteId)
+    public async Task Update(Guid id, UpdateEmpresaDto dto, Guid usuarioId)
     {
+        if (!await _repository.IsUsuarioVinculadoAsync(usuarioId, id))
+            throw new UnauthorizedAccessException("Usuário não tem permissão para editar esta empresa.");
+
+        var empresaComMesmoCnpj = await _repository.GetByCnpjAsync(dto.CNPJ);
+        if (empresaComMesmoCnpj != null && empresaComMesmoCnpj.Id != id)
+            throw new Exception("Já existe outra empresa cadastrada com este CNPJ.");
+
         var empresa = await _repository.GetById(id);
 
         if (empresa == null)
             throw new Exception("Empresa não encontrada");
-
-        if (empresa.ClienteId != clienteId)
-            throw new UnauthorizedAccessException();
 
         empresa.Nome = dto.Nome;
         empresa.CNPJ = dto.CNPJ;
@@ -57,15 +72,15 @@ public class EmpresaService
         await _repository.Update(empresa);
     }
 
-    public async Task Delete(Guid id, Guid clienteId)
+    public async Task Delete(Guid id, Guid usuarioId)
     {
+        if (!await _repository.IsUsuarioVinculadoAsync(usuarioId, id))
+            throw new UnauthorizedAccessException("Usuário não tem permissão para excluir esta empresa.");
+
         var empresa = await _repository.GetById(id);
 
         if (empresa == null)
             throw new Exception("Empresa não encontrada");
-
-        if (empresa.ClienteId != clienteId)
-            throw new UnauthorizedAccessException();
 
         await _repository.Delete(empresa);
     }
