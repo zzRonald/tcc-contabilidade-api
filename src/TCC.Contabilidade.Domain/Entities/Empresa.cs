@@ -8,7 +8,5 @@ public class Empresa
 
     public string CNPJ { get; set; } = string.Empty;
 
-    public Guid ClienteId { get; set; }
-
-    public User? Cliente { get; set; }
+    public ICollection<UsuarioEmpresa> UsuariosEmpresas { get; set; } = new List<UsuarioEmpresa>();
 }

@@ -16,8 +16,8 @@ public class CnpjService
     public async Task<CnpjResponseDTO> ConsultarCnpj(string cnpj, TipoUsuario tipoUsuario)
     {
         //  Regra de negócio
-        if (tipoUsuario != TipoUsuario.Contador)
-            throw new UnauthorizedAccessException("Apenas contadores podem consultar CNPJ");
+        if (tipoUsuario != TipoUsuario.Contador && tipoUsuario != TipoUsuario.Admin)
+            throw new UnauthorizedAccessException("Apenas contadores e administradores podem consultar CNPJ");
 
         //  Limpeza do CNPJ
         cnpj = new string(cnpj.Where(char.IsDigit).ToArray());

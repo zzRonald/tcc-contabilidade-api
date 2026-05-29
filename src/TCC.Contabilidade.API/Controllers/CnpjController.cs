@@ -41,15 +41,18 @@ public class CnpjController : ControllerBase
         }
     }
 
-    // 🔐 Método para pegar tipo do usuário (JWT futuramente)
+    // 🔐 Método para pegar tipo do usuário
     private TipoUsuario ObterTipoUsuario()
     {
-        var claim = User.Claims.FirstOrDefault(c => c.Type == "tipoUsuario");
+        var claim = User.Claims.FirstOrDefault(c => c.Type == "tipoUsuario")
+                    ?? User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
 
-        // 🔥 TEMPORÁRIO (até implementar JWT)
         if (claim == null)
             return TipoUsuario.Contador;
 
-        return (TipoUsuario)int.Parse(claim.Value);
+        if (Enum.TryParse<TipoUsuario>(claim.Value, out var tipo))
+            return tipo;
+
+        return TipoUsuario.Contador;
     }
 }
