@@ -85,6 +85,8 @@ builder.Services.AddScoped<ConviteService>();
 //  ADICIONAR PARA EMPRESAS
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<EmpresaService>();
+builder.Services.AddScoped<ICompanyConfigRepository, CompanyConfigRepository>();
+builder.Services.AddScoped<CompanyConfigService>();
 builder.Services.AddHttpClient<CnpjApiClient>();
 builder.Services.AddScoped<CnpjService>();
 builder.Services.AddHttpClient<ICnpjApiClient, CnpjApiClient>();

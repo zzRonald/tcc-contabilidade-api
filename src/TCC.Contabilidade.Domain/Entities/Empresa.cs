@@ -8,5 +8,7 @@ public class Empresa
 
     public string CNPJ { get; set; } = string.Empty;
 
+    public CompanyConfig? Config { get; set; }
+
     public ICollection<UsuarioEmpresa> UsuariosEmpresas { get; set; } = new List<UsuarioEmpresa>();
 }
