@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
-using TCC.Contabilidade.Application.DTOs;
+using TCC.Contabilidade.Application.DTO;
 
 namespace TCC.Contabilidade.API.Middlewares;
 
