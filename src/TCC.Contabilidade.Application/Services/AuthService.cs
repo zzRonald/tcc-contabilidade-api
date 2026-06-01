@@ -9,15 +9,18 @@ public class AuthService
     private readonly IUsuarioRepository _usuarioRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITokenService _tokenService;
+    private readonly AuditService _auditService;
 
     public AuthService(
         IUsuarioRepository usuarioRepository,
         IRefreshTokenRepository refreshTokenRepository,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        AuditService auditService)
     {
         _usuarioRepository = usuarioRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tokenService = tokenService;
+        _auditService = auditService;
     }
 
     public async Task<AuthResponseDTO?> LoginAsync(string email, string senha)
@@ -26,6 +29,8 @@ public class AuthService
 
         if (usuario == null || !BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash))
             return null;
+
+        await _auditService.RegistrarEvento("LOGIN", "User", usuario.Id.ToString(), usuario.Id);
 
         return await GenerateAuthResponseAsync(usuario);
     }

@@ -8,10 +8,12 @@ namespace TCC.Contabilidade.Application.Services;
 public class EmpresaService
 {
     private readonly IEmpresaRepository _repository;
+    private readonly AuditService _auditService;
 
-    public EmpresaService(IEmpresaRepository repository)
+    public EmpresaService(IEmpresaRepository repository, AuditService auditService)
     {
         _repository = repository;
+        _auditService = auditService;
     }
 
     public async Task Create(CreateEmpresaDto dto, Guid usuarioId)
@@ -39,6 +41,8 @@ public class EmpresaService
             };
             await _repository.AddUsuarioEmpresaAsync(vinculou);
         }
+
+        await _auditService.RegistrarEvento("CREATE_EMPRESA", "Empresa", empresa.Id.ToString(), usuarioId);
     }
 
     public async Task<(List<EmpresaResponseDto> Items, PaginationMetadataDTO Metadata)> GetAll(Guid usuarioId, int page, int pageSize)
@@ -81,6 +85,8 @@ public class EmpresaService
         empresa.CNPJ = dto.CNPJ;
 
         await _repository.Update(empresa);
+
+        await _auditService.RegistrarEvento("UPDATE_EMPRESA", "Empresa", id.ToString(), usuarioId);
     }
 
     public async Task Delete(Guid id, Guid usuarioId)
@@ -94,5 +100,7 @@ public class EmpresaService
             throw new Exception("Empresa não encontrada");
 
         await _repository.Delete(empresa);
+
+        await _auditService.RegistrarEvento("EXCLUSAO_EMPRESA", "Empresa", id.ToString(), usuarioId);
     }
 }
