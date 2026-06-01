@@ -92,9 +92,13 @@ builder.Services.AddScoped<AuditService>();
 //  ADICIONAR PARA EMPRESAS
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<EmpresaService>();
-builder.Services.AddHttpClient<CnpjApiClient>();
+
+// INTEGRAÇÕES
+builder.Services.AddHttpClient<CnpjIntegrationService>();
+builder.Services.AddScoped<ICnpjApiClient>(sp => sp.GetRequiredService<CnpjIntegrationService>());
+builder.Services.AddScoped<IExternalIntegration>(sp => sp.GetRequiredService<CnpjIntegrationService>());
 builder.Services.AddScoped<CnpjService>();
-builder.Services.AddHttpClient<ICnpjApiClient, CnpjApiClient>();
+builder.Services.AddScoped<IntegrationService>();
 
 // TENANT CONTEXT
 builder.Services.AddScoped<ITenantContext, TenantContextService>();
