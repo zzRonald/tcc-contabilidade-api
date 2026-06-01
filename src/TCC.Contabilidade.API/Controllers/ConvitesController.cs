@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TCC.Contabilidade.Application.DTO;
+using TCC.Contabilidade.Application.DTO.Convites;
 using TCC.Contabilidade.Application.Services;
 
 namespace TCC.Contabilidade.API.Controllers;
@@ -42,23 +44,30 @@ public class ConvitesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ListarConvites()
+    public async Task<IActionResult> ListarConvites([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
         if (userIdClaim == null)
         {
-            return Unauthorized(new
-            {
-                mensagem = "Não foi possível identificar o usuário autenticado."
-            });
+            return Unauthorized(ApiResponseDTO<object>.Fail("Não foi possível identificar o usuário autenticado.", 401));
+        }
+
+        if (page < 1 || pageSize < 1)
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail("Os parâmetros de paginação devem ser maiores que zero."));
+        }
+
+        if (pageSize > 100)
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail("O tamanho máximo da página é 100."));
         }
 
         var contadorId = Guid.Parse(userIdClaim.Value);
 
-        var convites = await _conviteService.GetConvitesByContadorIdAsync(contadorId);
+        var (items, metadata) = await _conviteService.GetPagedConvitesByContadorIdAsync(contadorId, page, pageSize);
 
-        return Ok(convites);
+        return Ok(ApiResponseDTO<IEnumerable<ConviteResponseDto>>.Success(items, "Convites listados com sucesso", metadata));
     }
 
     public record CriarConviteRequest(string EmailCliente);

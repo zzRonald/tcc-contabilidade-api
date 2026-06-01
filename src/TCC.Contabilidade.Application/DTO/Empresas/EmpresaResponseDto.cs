@@ -10,7 +10,7 @@ public class EmpresaResponseDto
 {
     public Guid Id { get; set; }
 
-    public string Nome { get; set; } = string.Empty;
+    public string NomeFantasia { get; set; } = string.Empty;
 
     public string CNPJ { get; set; } = string.Empty;
 }
