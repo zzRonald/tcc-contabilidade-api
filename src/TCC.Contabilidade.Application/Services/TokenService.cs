@@ -18,7 +18,7 @@ public class TokenService : ITokenService
         _config = config;
     }
 
-    public string GenerateAccessToken(User usuario)
+    public string GenerateAccessToken(User usuario, Guid? tenantId = null)
     {
         var key = Encoding.ASCII.GetBytes(
             _config["Jwt:Key"] ?? "MinhaChaveSuperSecretaParaJWT_ChangeThis"
@@ -26,16 +26,23 @@ public class TokenService : ITokenService
 
         var tokenHandler = new JwtSecurityTokenHandler();
 
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+            new Claim(ClaimTypes.Name, usuario.Nome),
+            new Claim(ClaimTypes.Role, usuario.TipoUsuario.ToString())
+        };
+
+        if (tenantId.HasValue)
+        {
+            claims.Add(new Claim("tenantId", tenantId.Value.ToString()));
+        }
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuario.Nome),
-                new Claim(ClaimTypes.Role, usuario.TipoUsuario.ToString())
-            }),
+            Subject = new ClaimsIdentity(claims),
 
-            Expires = DateTime.UtcNow.AddMinutes(15), // Reduzido conforme objetivo
+            Expires = DateTime.UtcNow.AddMinutes(15),
 
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),

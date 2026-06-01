@@ -1,6 +1,8 @@
-﻿namespace TCC.Contabilidade.Domain.Entities;
+using TCC.Contabilidade.Domain.Interfaces;
 
-public class Funcionario
+namespace TCC.Contabilidade.Domain.Entities;
+
+public class Funcionario : ITenantEntity
 {
     public Guid Id { get; set; }
 

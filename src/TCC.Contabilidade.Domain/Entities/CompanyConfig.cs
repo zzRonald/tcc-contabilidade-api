@@ -1,6 +1,8 @@
+using TCC.Contabilidade.Domain.Interfaces;
+
 namespace TCC.Contabilidade.Domain.Entities;
 
-public class CompanyConfig
+public class CompanyConfig : ITenantEntity
 {
     public Guid Id { get; set; }
     public Guid EmpresaId { get; set; }

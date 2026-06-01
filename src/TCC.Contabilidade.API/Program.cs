@@ -96,6 +96,9 @@ builder.Services.AddHttpClient<CnpjApiClient>();
 builder.Services.AddScoped<CnpjService>();
 builder.Services.AddHttpClient<ICnpjApiClient, CnpjApiClient>();
 
+// TENANT CONTEXT
+builder.Services.AddScoped<ITenantContext, TenantContextService>();
+
 
 // =============================
 // CONTROLLERS
@@ -165,6 +168,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<TenantMiddleware>();
 app.UseMiddleware<AuditMiddleware>();
 app.UseAuthorization();
 

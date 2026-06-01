@@ -10,17 +10,20 @@ public class AuthService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITokenService _tokenService;
     private readonly AuditService _auditService;
+    private readonly IEmpresaRepository _empresaRepository;
 
     public AuthService(
         IUsuarioRepository usuarioRepository,
         IRefreshTokenRepository refreshTokenRepository,
         ITokenService tokenService,
-        AuditService auditService)
+        AuditService auditService,
+        IEmpresaRepository empresaRepository)
     {
         _usuarioRepository = usuarioRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tokenService = tokenService;
         _auditService = auditService;
+        _empresaRepository = empresaRepository;
     }
 
     public async Task<AuthResponseDTO?> LoginAsync(string email, string senha)
@@ -66,7 +69,11 @@ public class AuthService
 
     private async Task<AuthResponseDTO> GenerateAuthResponseAsync(User usuario)
     {
-        var accessToken = _tokenService.GenerateAccessToken(usuario);
+        // Tenta obter a primeira empresa vinculada ao usuário para definir como tenant inicial
+        var empresas = await _empresaRepository.GetAllByUsuarioId(usuario.Id);
+        var tenantId = empresas.FirstOrDefault()?.Id;
+
+        var accessToken = _tokenService.GenerateAccessToken(usuario, tenantId);
         var refreshTokenStr = _tokenService.GenerateRefreshToken();
 
         var refreshToken = new RefreshToken
