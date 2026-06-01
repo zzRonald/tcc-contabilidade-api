@@ -6,6 +6,7 @@ using System.Text;
 using TCC.Contabilidade.API.Middlewares;
 using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Application.Services;
+using TCC.Contabilidade.Infrastructure.Cache;
 using TCC.Contabilidade.Infrastructure.Data;
 using TCC.Contabilidade.Infrastructure.Integrations;
 using TCC.Contabilidade.Infrastructure.Repositories;
@@ -102,6 +103,10 @@ builder.Services.AddScoped<IntegrationService>();
 
 // TENANT CONTEXT
 builder.Services.AddScoped<ITenantContext, TenantContextService>();
+
+// CACHE
+builder.Services.AddSingleton<ICacheService, MemoryCacheProvider>();
+builder.Services.AddSingleton<CacheService>();
 
 
 // =============================
