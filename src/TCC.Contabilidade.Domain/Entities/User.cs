@@ -26,6 +26,8 @@ public class User
 
     public ICollection<UsuarioEmpresa> UsuariosEmpresas { get; set; } = new List<UsuarioEmpresa>();
 
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
     public User() { }
 
     public User(string nome, string email, string senhaHash, TipoUsuario tipoUsuario)
