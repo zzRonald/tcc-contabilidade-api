@@ -1,4 +1,6 @@
-﻿using TCC.Contabilidade.Application.Interfaces;
+using TCC.Contabilidade.Application.DTO;
+using TCC.Contabilidade.Application.DTO.Convites;
+using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Domain.Entities;
 
 namespace TCC.Contabilidade.Application.Services;
@@ -40,5 +42,28 @@ public class ConviteService
     public async Task<List<Convite>> GetConvitesByContadorIdAsync(Guid contadorId)
     {
         return await _conviteRepository.GetByContadorId(contadorId);
+    }
+
+    public async Task<(List<ConviteResponseDto> Items, PaginationMetadataDTO Metadata)> GetPagedConvitesByContadorIdAsync(Guid contadorId, int page, int pageSize)
+    {
+        var (convites, totalCount) = await _conviteRepository.GetPagedByContadorId(contadorId, page, pageSize);
+
+        var items = convites.Select(c => new ConviteResponseDto
+        {
+            Token = c.Token,
+            EmailDestino = c.EmailCliente,
+            DataExpiracao = c.Expiracao,
+            Utilizado = c.Utilizado
+        }).ToList();
+
+        var metadata = new PaginationMetadataDTO
+        {
+            PaginaAtual = page,
+            TamanhoPagina = pageSize,
+            TotalRegistros = totalCount,
+            TotalPaginas = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
+
+        return (items, metadata);
     }
 }

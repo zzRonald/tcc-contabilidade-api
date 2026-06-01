@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TCC.Contabilidade.Application.DTOs.Convites
+namespace TCC.Contabilidade.Application.DTO.Convites
 {
     public class ConviteResponseDto
     {

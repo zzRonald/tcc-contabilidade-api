@@ -48,7 +48,7 @@ public class EmpresaService
         var items = empresas.Select(e => new EmpresaResponseDto
         {
             Id = e.Id,
-            Nome = e.Nome,
+            NomeFantasia = e.Nome,
             CNPJ = e.CNPJ
         }).ToList();
 
