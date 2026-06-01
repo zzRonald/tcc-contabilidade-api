@@ -1,17 +1,30 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Net.Http.Json;
 using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.Interfaces;
 
 namespace TCC.Contabilidade.Infrastructure.Integrations;
 
-public class CnpjApiClient : ICnpjApiClient
+public class CnpjIntegrationService : ExternalApiClient, ICnpjApiClient, IExternalIntegration
 {
-    private readonly HttpClient _httpClient;
+    public string NomeIntegracao => "API de Consulta de CNPJ (BrasilAPI/ReceitaWS)";
+    public bool Ativo => true;
 
-    public CnpjApiClient(HttpClient httpClient)
+    public CnpjIntegrationService(HttpClient httpClient) : base(httpClient)
     {
-        _httpClient = httpClient;
+    }
+
+    public async Task<bool> TestarConexaoAsync()
+    {
+        try
+        {
+            var response = await HttpClient.GetAsync("https://brasilapi.com.br/api/cnpj/v1/00000000000191");
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public async Task<CnpjResponseDTO?> ConsultarCnpj(string cnpj)
@@ -33,18 +46,9 @@ public class CnpjApiClient : ICnpjApiClient
         }
     }
 
-    //  BRASIL API
     private async Task<CnpjResponseDTO?> ConsultarBrasilApi(string cnpj)
     {
-        var response = await _httpClient.GetAsync($"https://brasilapi.com.br/api/cnpj/v1/{cnpj}");
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new Exception($"BrasilAPI erro: {response.StatusCode} - {error}");
-        }
-
-        var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var json = await GetAsync<JsonElement>($"https://brasilapi.com.br/api/cnpj/v1/{cnpj}");
 
         if (json.ValueKind == JsonValueKind.Undefined)
             throw new Exception("BrasilAPI retornou vazio");
@@ -61,23 +65,13 @@ public class CnpjApiClient : ICnpjApiClient
         };
     }
 
-    // RECEITA WS (fallback)
     private async Task<CnpjResponseDTO?> ConsultarReceitaWs(string cnpj)
     {
-        var response = await _httpClient.GetAsync($"https://www.receitaws.com.br/v1/cnpj/{cnpj}");
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new Exception($"ReceitaWS erro: {response.StatusCode} - {error}");
-        }
-
-        var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var json = await GetAsync<JsonElement>($"https://www.receitaws.com.br/v1/cnpj/{cnpj}");
 
         if (json.ValueKind == JsonValueKind.Undefined)
             throw new Exception("ReceitaWS retornou vazio");
 
-        // ReceitaWS retorna "status":"ERROR" quando não acha
         if (json.TryGetProperty("status", out var status) && status.GetString() == "ERROR")
         {
             var message = json.TryGetProperty("message", out var msg) ? msg.GetString() : "Erro desconhecido";

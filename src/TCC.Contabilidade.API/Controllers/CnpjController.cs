@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Domain.Enums;
 
@@ -25,19 +26,15 @@ public class CnpjController : ControllerBase
 
             var result = await _service.ConsultarCnpj(cnpj, tipoUsuario);
 
-            return Ok(new
-            {
-                sucesso = true,
-                dados = result
-            });
+            return Ok(ApiResponseDTO<CnpjResponseDTO>.Success(result));
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Unauthorized(new { sucesso = false, mensagem = ex.Message });
+            return Unauthorized(ApiResponseDTO<object>.Fail(ex.Message, 401));
         }
         catch (Exception ex)
         {
-            return BadRequest(new { sucesso = false, mensagem = ex.Message });
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
         }
     }
 
