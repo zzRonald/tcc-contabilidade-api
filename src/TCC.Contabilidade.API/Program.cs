@@ -79,8 +79,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IConviteRepository, ConviteRepository>();
 builder.Services.AddScoped<ICompanyConfigRepository, CompanyConfigRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ConviteService>();
 builder.Services.AddScoped<CompanyConfigService>();
 

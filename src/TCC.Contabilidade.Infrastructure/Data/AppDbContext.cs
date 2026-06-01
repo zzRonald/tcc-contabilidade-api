@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
 
     public DbSet<CompanyConfig> CompanyConfigs { get; set; }
 
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -101,6 +103,23 @@ public class AppDbContext : DbContext
                 .WithOne(e => e.Config)
                 .HasForeignKey<CompanyConfig>(c => c.EmpresaId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(rt => rt.Id);
+
+            entity.Property(rt => rt.Token)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.HasOne(rt => rt.Usuario)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(rt => rt.Token)
+                .IsUnique();
         });
     }
 }

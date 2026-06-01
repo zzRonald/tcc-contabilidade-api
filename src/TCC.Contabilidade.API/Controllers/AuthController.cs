@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.DTOs;
 using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Domain.Entities;
@@ -14,12 +11,12 @@ namespace TCC.Contabilidade.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly UserService _userService;
-    private readonly IConfiguration _config;
+    private readonly AuthService _authService;
 
-    public AuthController(UserService userService, IConfiguration config)
+    public AuthController(UserService userService, AuthService authService)
     {
         _userService = userService;
-        _config = config;
+        _authService = authService;
     }
 
     [HttpPost("register")]
@@ -34,17 +31,17 @@ public class AuthController : ControllerBase
                 request.Perfil
             );
 
-            return Ok(new
+            return Ok(ApiResponseDTO<object>.Success(new
             {
                 usuario.Id,
                 usuario.Nome,
                 usuario.Email,
                 TipoUsuario = usuario.TipoUsuario.ToString()
-            });
+            }));
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
         }
     }
 
@@ -61,73 +58,49 @@ public class AuthController : ControllerBase
                 request.Senha
             );
 
-            return Ok(new
+            return Ok(ApiResponseDTO<object>.Success(new
             {
-                message = "Cliente registrado com sucesso",
                 user.Id,
                 user.Email
-            });
+            }, "Cliente registrado com sucesso"));
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
         }
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var usuario = await _userService.AuthenticateAsync(request.Email, request.Senha);
+        var response = await _authService.LoginAsync(request.Email, request.Senha);
 
-        if (usuario == null)
-            return Unauthorized(new { message = "Email ou senha inválidos" });
+        if (response == null)
+            return Unauthorized(ApiResponseDTO<object>.Fail("Email ou senha inválidos", 401));
 
-        var token = GenerateJwtToken(usuario);
-
-        return Ok(new
-        {
-            token,
-            usuario = new
-            {
-                usuario.Id,
-                usuario.Nome,
-                usuario.Email,
-                TipoUsuario = usuario.TipoUsuario.ToString()
-            }
-        });
+        return Ok(ApiResponseDTO<AuthResponseDTO>.Success(response));
     }
 
-    private string GenerateJwtToken(User usuario)
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
-        var key = Encoding.ASCII.GetBytes(
-            _config["JwtKey"] ?? "MinhaChaveSuperSecretaParaJWT_ChangeThis"
-        );
+        var response = await _authService.RefreshTokenAsync(request.RefreshToken);
 
-        var tokenHandler = new JwtSecurityTokenHandler();
+        if (response == null)
+            return Unauthorized(ApiResponseDTO<object>.Fail("Refresh Token inválido ou expirado", 401));
 
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuario.Nome),
-                new Claim(ClaimTypes.Role, usuario.TipoUsuario.ToString())
-            }),
+        return Ok(ApiResponseDTO<AuthResponseDTO>.Success(response));
+    }
 
-            Expires = DateTime.UtcNow.AddHours(4),
+    [HttpPost("revoke-token")]
+    public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest request)
+    {
+        var result = await _authService.RevokeTokenAsync(request.Token);
 
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature
-            )
-        };
+        if (!result)
+            return BadRequest(ApiResponseDTO<object>.Fail("Token inválido ou já revogado"));
 
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
+        return Ok(ApiResponseDTO<object>.Success(null, "Token revogado com sucesso"));
     }
 
     public record RegisterRequest(string Nome, string Email, string Senha, string Perfil);
