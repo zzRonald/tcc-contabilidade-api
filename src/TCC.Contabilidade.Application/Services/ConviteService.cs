@@ -8,10 +8,12 @@ namespace TCC.Contabilidade.Application.Services;
 public class ConviteService
 {
     private readonly IConviteRepository _conviteRepository;
+    private readonly AuditService _auditService;
 
-    public ConviteService(IConviteRepository conviteRepository)
+    public ConviteService(IConviteRepository conviteRepository, AuditService auditService)
     {
         _conviteRepository = conviteRepository;
+        _auditService = auditService;
     }
 
     public async Task<Convite?> ObterConvitePorTokenAsync(string token)
@@ -35,6 +37,8 @@ public class ConviteService
 
         await _conviteRepository.AdicionarAsync(convite);
         await _conviteRepository.SalvarAlteracoesAsync();
+
+        await _auditService.RegistrarEvento("ENVIO_CONVITE", "Convite", convite.Id.ToString(), contadorId);
 
         return token;
     }

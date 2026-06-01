@@ -80,12 +80,14 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IConviteRepository, ConviteRepository>();
 builder.Services.AddScoped<ICompanyConfigRepository, CompanyConfigRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ConviteService>();
 builder.Services.AddScoped<CompanyConfigService>();
+builder.Services.AddScoped<AuditService>();
 
 //  ADICIONAR PARA EMPRESAS
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
@@ -100,6 +102,7 @@ builder.Services.AddHttpClient<ICnpjApiClient, CnpjApiClient>();
 // =============================
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
@@ -162,6 +165,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<AuditMiddleware>();
 app.UseAuthorization();
 
 //  RATE LIMITING 

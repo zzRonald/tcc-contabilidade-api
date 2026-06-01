@@ -22,6 +22,8 @@ public class AppDbContext : DbContext
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public DbSet<AuditLog> AuditLogs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -120,6 +122,28 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(rt => rt.Token)
                 .IsUnique();
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+
+            entity.Property(a => a.Acao)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(a => a.Entidade)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(a => a.EntidadeId)
+                .HasMaxLength(100);
+
+            entity.Property(a => a.Ip)
+                .HasMaxLength(50);
+
+            entity.Property(a => a.DataHora)
+                .IsRequired();
         });
     }
 }
