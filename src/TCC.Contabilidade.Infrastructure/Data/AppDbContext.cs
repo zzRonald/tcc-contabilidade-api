@@ -1,13 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Domain.Entities;
+using TCC.Contabilidade.Domain.Interfaces;
 
 namespace TCC.Contabilidade.Infrastructure.Data;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options)
+    private readonly ITenantContext _tenantContext;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext)
         : base(options)
     {
+        _tenantContext = tenantContext;
     }
 
     public DbSet<User> Usuarios { get; set; }
@@ -23,6 +28,40 @@ public class AppDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public DbSet<AuditLog> AuditLogs { get; set; }
+
+    public DbSet<Funcionario> Funcionarios { get; set; }
+
+    public override int SaveChanges()
+    {
+        ApplyTenantId();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ApplyTenantId();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void ApplyTenantId()
+    {
+        foreach (var entry in ChangeTracker.Entries<ITenantEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    if (_tenantContext.TenantId.HasValue)
+                    {
+                        entry.Entity.EmpresaId = _tenantContext.TenantId.Value;
+                    }
+                    break;
+                case EntityState.Modified:
+                    // Impede que o EmpresaId seja alterado
+                    entry.Property(e => e.EmpresaId).IsModified = false;
+                    break;
+            }
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -145,5 +184,22 @@ public class AppDbContext : DbContext
             entity.Property(a => a.DataHora)
                 .IsRequired();
         });
+
+        modelBuilder.Entity<Funcionario>(entity =>
+        {
+            entity.HasKey(f => f.Id);
+
+            entity.Property(f => f.Nome)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(f => f.CPF)
+                .IsRequired()
+                .HasMaxLength(11);
+        });
+
+        // Global Query Filters for Multi-Tenancy
+        modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }

@@ -4,6 +4,6 @@ namespace TCC.Contabilidade.Application.Interfaces;
 
 public interface ITokenService
 {
-    string GenerateAccessToken(User usuario);
+    string GenerateAccessToken(User usuario, Guid? tenantId = null);
     string GenerateRefreshToken();
 }
