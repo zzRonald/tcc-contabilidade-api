@@ -8,6 +8,8 @@ public interface IEmpresaRepository
 
     Task<List<Empresa>> GetAllByUsuarioId(Guid usuarioId);
 
+    Task<(List<Empresa> Items, int TotalCount)> GetPagedByUsuarioId(Guid usuarioId, int page, int pageSize);
+
     Task<Empresa?> GetById(Guid id);
 
     Task<Empresa?> GetByCnpjAsync(string cnpj);

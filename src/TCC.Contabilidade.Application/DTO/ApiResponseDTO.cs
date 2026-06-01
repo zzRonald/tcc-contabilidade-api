@@ -4,23 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TCC.Contabilidade.Application.DTOs;
+namespace TCC.Contabilidade.Application.DTO;
 
 public class ApiResponseDTO<T>
 {
     public bool Sucesso { get; set; }
     public string Mensagem { get; set; } = string.Empty;
     public T? Dados { get; set; }
+    public PaginationMetadataDTO? Paginacao { get; set; }
     public object? Erro { get; set; }
     public int? Codigo { get; set; }
 
-    public static ApiResponseDTO<T> Success(T dados, string mensagem = "Operação realizada com sucesso")
+    public static ApiResponseDTO<T> Success(T dados, string mensagem = "Operação realizada com sucesso", PaginationMetadataDTO? paginacao = null)
     {
         return new ApiResponseDTO<T>
         {
             Sucesso = true,
             Mensagem = mensagem,
-            Dados = dados
+            Dados = dados,
+            Paginacao = paginacao
         };
     }
 

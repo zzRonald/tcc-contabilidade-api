@@ -29,6 +29,23 @@ public class EmpresaRepository : IEmpresaRepository
             .ToListAsync();
     }
 
+    public async Task<(List<Empresa> Items, int TotalCount)> GetPagedByUsuarioId(Guid usuarioId, int page, int pageSize)
+    {
+        var query = _context.UsuariosEmpresas
+            .AsNoTracking()
+            .Where(ue => ue.UsuarioId == usuarioId)
+            .Select(ue => ue.Empresa!);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task<Empresa?> GetById(Guid id)
     {
         return await _context.Empresas.FirstOrDefaultAsync(e => e.Id == id);

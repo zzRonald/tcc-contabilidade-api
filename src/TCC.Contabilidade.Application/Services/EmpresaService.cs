@@ -1,4 +1,5 @@
 ﻿using TCC.Contabilidade.Application.DTO.Empresas;
+using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Domain.Entities;
 
@@ -40,16 +41,26 @@ public class EmpresaService
         }
     }
 
-    public async Task<List<EmpresaResponseDto>> GetAll(Guid usuarioId)
+    public async Task<(List<EmpresaResponseDto> Items, PaginationMetadataDTO Metadata)> GetAll(Guid usuarioId, int page, int pageSize)
     {
-        var empresas = await _repository.GetAllByUsuarioId(usuarioId);
+        var (empresas, totalCount) = await _repository.GetPagedByUsuarioId(usuarioId, page, pageSize);
 
-        return empresas.Select(e => new EmpresaResponseDto
+        var items = empresas.Select(e => new EmpresaResponseDto
         {
             Id = e.Id,
             Nome = e.Nome,
             CNPJ = e.CNPJ
         }).ToList();
+
+        var metadata = new PaginationMetadataDTO
+        {
+            PaginaAtual = page,
+            TamanhoPagina = pageSize,
+            TotalRegistros = totalCount,
+            TotalPaginas = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
+
+        return (items, metadata);
     }
 
     public async Task Update(Guid id, UpdateEmpresaDto dto, Guid usuarioId)
