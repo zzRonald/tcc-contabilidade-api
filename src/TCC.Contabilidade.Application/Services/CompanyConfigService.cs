@@ -8,32 +8,40 @@ public class CompanyConfigService
 {
     private readonly ICompanyConfigRepository _repository;
     private readonly IEmpresaRepository _empresaRepository;
+    private readonly CacheService _cache;
+    private const string CachePrefix = "company_config";
 
-    public CompanyConfigService(ICompanyConfigRepository repository, IEmpresaRepository empresaRepository)
+    public CompanyConfigService(ICompanyConfigRepository repository, IEmpresaRepository empresaRepository, CacheService cache)
     {
         _repository = repository;
         _empresaRepository = empresaRepository;
+        _cache = cache;
     }
 
     public async Task<CompanyConfigDTO> GetByEmpresaId(Guid empresaId, Guid usuarioId)
     {
         await ValidateUserAccess(empresaId, usuarioId);
 
-        var config = await _repository.GetByEmpresaId(empresaId);
+        string cacheKey = _cache.GenerateKey(CachePrefix, empresaId);
 
-        if (config == null)
+        return await _cache.GetOrCreateAsync(cacheKey, async () =>
         {
-            return new CompanyConfigDTO
-            {
-                EmpresaId = empresaId,
-                MoedaPadrao = "BRL",
-                FormatoData = "dd/MM/yyyy",
-                Timezone = "America/Sao_Paulo",
-                NotificacoesEmail = true
-            };
-        }
+            var config = await _repository.GetByEmpresaId(empresaId);
 
-        return MapToDto(config);
+            if (config == null)
+            {
+                return new CompanyConfigDTO
+                {
+                    EmpresaId = empresaId,
+                    MoedaPadrao = "BRL",
+                    FormatoData = "dd/MM/yyyy",
+                    Timezone = "America/Sao_Paulo",
+                    NotificacoesEmail = true
+                };
+            }
+
+            return MapToDto(config);
+        }, TimeSpan.FromMinutes(30)) ?? new CompanyConfigDTO();
     }
 
     public async Task Upsert(CompanyConfigDTO dto, Guid usuarioId)
@@ -63,6 +71,8 @@ public class CompanyConfigService
             config.NotificacoesEmail = dto.NotificacoesEmail;
             await _repository.UpdateAsync(config);
         }
+
+        await _cache.RemoveAsync(_cache.GenerateKey(CachePrefix, dto.EmpresaId));
     }
 
     private async Task ValidateUserAccess(Guid empresaId, Guid usuarioId)

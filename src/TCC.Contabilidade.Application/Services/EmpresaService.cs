@@ -9,11 +9,14 @@ public class EmpresaService
 {
     private readonly IEmpresaRepository _repository;
     private readonly AuditService _auditService;
+    private readonly CacheService _cache;
+    private const string CachePrefix = "empresas";
 
-    public EmpresaService(IEmpresaRepository repository, AuditService auditService)
+    public EmpresaService(IEmpresaRepository repository, AuditService auditService, CacheService cache)
     {
         _repository = repository;
         _auditService = auditService;
+        _cache = cache;
     }
 
     public async Task Create(CreateEmpresaDto dto, Guid usuarioId)
@@ -43,28 +46,39 @@ public class EmpresaService
         }
 
         await _auditService.RegistrarEvento("CREATE_EMPRESA", "Empresa", empresa.Id.ToString(), usuarioId);
+        await InvalidateUserCache(usuarioId);
     }
 
     public async Task<(List<EmpresaResponseDto> Items, PaginationMetadataDTO Metadata)> GetAll(Guid usuarioId, int page, int pageSize)
     {
-        var (empresas, totalCount) = await _repository.GetPagedByUsuarioId(usuarioId, page, pageSize);
+        string versionKey = _cache.GenerateKey(CachePrefix, usuarioId, "version");
+        string version = await _cache.GetOrCreateAsync(versionKey, () => Task.FromResult(Guid.NewGuid().ToString()), TimeSpan.FromHours(1)) ?? "1";
 
-        var items = empresas.Select(e => new EmpresaResponseDto
+        string cacheKey = _cache.GenerateKey(CachePrefix, usuarioId, version, page, pageSize);
+
+        var cached = await _cache.GetOrCreateAsync(cacheKey, async () =>
         {
-            Id = e.Id,
-            NomeFantasia = e.Nome,
-            CNPJ = e.CNPJ
-        }).ToList();
+            var (empresas, totalCount) = await _repository.GetPagedByUsuarioId(usuarioId, page, pageSize);
 
-        var metadata = new PaginationMetadataDTO
-        {
-            PaginaAtual = page,
-            TamanhoPagina = pageSize,
-            TotalRegistros = totalCount,
-            TotalPaginas = (int)Math.Ceiling(totalCount / (double)pageSize)
-        };
+            var items = empresas.Select(e => new EmpresaResponseDto
+            {
+                Id = e.Id,
+                NomeFantasia = e.Nome,
+                CNPJ = e.CNPJ
+            }).ToList();
 
-        return (items, metadata);
+            var metadata = new PaginationMetadataDTO
+            {
+                PaginaAtual = page,
+                TamanhoPagina = pageSize,
+                TotalRegistros = totalCount,
+                TotalPaginas = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return new EmpresaListResponse { Items = items, Metadata = metadata };
+        }, TimeSpan.FromMinutes(5));
+
+        return (cached?.Items ?? new List<EmpresaResponseDto>(), cached?.Metadata ?? new PaginationMetadataDTO());
     }
 
     public async Task Update(Guid id, UpdateEmpresaDto dto, Guid usuarioId)
@@ -87,6 +101,7 @@ public class EmpresaService
         await _repository.Update(empresa);
 
         await _auditService.RegistrarEvento("UPDATE_EMPRESA", "Empresa", id.ToString(), usuarioId);
+        await InvalidateUserCache(usuarioId);
     }
 
     public async Task Delete(Guid id, Guid usuarioId)
@@ -102,5 +117,18 @@ public class EmpresaService
         await _repository.Delete(empresa);
 
         await _auditService.RegistrarEvento("EXCLUSAO_EMPRESA", "Empresa", id.ToString(), usuarioId);
+        await InvalidateUserCache(usuarioId);
+    }
+
+    private async Task InvalidateUserCache(Guid usuarioId)
+    {
+        // Invalida a versão do cache para o usuário, forçando novas consultas
+        await _cache.RemoveAsync(_cache.GenerateKey(CachePrefix, usuarioId, "version"));
+    }
+
+    private class EmpresaListResponse
+    {
+        public List<EmpresaResponseDto> Items { get; set; } = new();
+        public PaginationMetadataDTO Metadata { get; set; } = new();
     }
 }
