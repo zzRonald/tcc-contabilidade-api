@@ -168,6 +168,24 @@ O desenvolvimento do sistema é organizado utilizando recursos do GitHub:
 
 <hr>
 
+<h2>⚙️ Pipeline CI/CD</h2>
+
+<p>
+O projeto utiliza <strong>GitHub Actions</strong> para garantir a qualidade e estabilidade do código.
+Toda <strong>Pull Request</strong> aberta para a branch <code>main</code> dispara automaticamente uma pipeline de validação que executa as seguintes etapas:
+</p>
+
+<ul>
+  <li><strong>Restore:</strong> Restauração de dependências do NuGet.</li>
+  <li><strong>Build:</strong> Compilação da solução para garantir que não existam erros de sintaxe ou referências quebradas.</li>
+</ul>
+
+<p>
+A aprovação do merge está condicionada ao sucesso dessa pipeline, reduzindo o risco de introdução de regressões no ambiente principal.
+</p>
+
+<hr>
+
 <h2>🚀 Tecnologias Utilizadas</h2>
 
 <ul>
