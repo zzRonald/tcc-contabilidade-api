@@ -119,6 +119,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
 
+// =============================
+// CORS CONFIG
+// =============================
+
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultPolicy", policy =>
+    {
+        if (allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+    });
+});
+
 
 // =============================
 // SWAGGER + JWT
@@ -166,6 +186,8 @@ var app = builder.Build();
 // MIDDLEWARE
 // =============================
 
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -174,6 +196,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("DefaultPolicy");
 
 app.UseAuthentication();
 app.UseMiddleware<ExceptionMiddleware>();
