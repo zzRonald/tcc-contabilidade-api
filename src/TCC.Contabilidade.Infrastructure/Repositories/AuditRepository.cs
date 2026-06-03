@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Domain.Entities;
 using TCC.Contabilidade.Infrastructure.Data;
@@ -21,5 +23,45 @@ public class AuditRepository : IAuditRepository
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<(IEnumerable<AuditLogResponseDTO> Logs, int Total)> GetPagedAsync(AuditLogFilterDTO filtros)
+    {
+        var query = _context.AuditLogs
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (filtros.DataInicio.HasValue)
+            query = query.Where(a => a.DataHora >= filtros.DataInicio.Value);
+
+        if (filtros.DataFim.HasValue)
+            query = query.Where(a => a.DataHora <= filtros.DataFim.Value);
+
+        if (filtros.UsuarioId.HasValue)
+            query = query.Where(a => a.UsuarioId == filtros.UsuarioId.Value);
+
+        if (!string.IsNullOrWhiteSpace(filtros.Acao))
+            query = query.Where(a => a.Acao.Contains(filtros.Acao));
+
+        var total = await query.CountAsync();
+
+        var logs = await query
+            .OrderByDescending(a => a.DataHora)
+            .Skip((filtros.Pagina - 1) * filtros.TamanhoPagina)
+            .Take(filtros.TamanhoPagina)
+            .Select(audit => new AuditLogResponseDTO
+            {
+                Id = audit.Id,
+                UsuarioId = audit.UsuarioId,
+                UsuarioNome = _context.Usuarios.Where(u => u.Id == audit.UsuarioId).Select(u => u.Nome).FirstOrDefault(),
+                Acao = audit.Acao,
+                Entidade = audit.Entidade,
+                EntidadeId = audit.EntidadeId,
+                DataHora = audit.DataHora,
+                Ip = audit.Ip
+            })
+            .ToListAsync();
+
+        return (logs, total);
     }
 }

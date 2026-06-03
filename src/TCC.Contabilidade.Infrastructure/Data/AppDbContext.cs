@@ -223,5 +223,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Notification>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }
