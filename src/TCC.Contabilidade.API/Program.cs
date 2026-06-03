@@ -82,6 +82,7 @@ builder.Services.AddScoped<IConviteRepository, ConviteRepository>();
 builder.Services.AddScoped<ICompanyConfigRepository, CompanyConfigRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IAuditRepository, AuditRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<UserService>();
@@ -89,6 +90,8 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ConviteService>();
 builder.Services.AddScoped<CompanyConfigService>();
 builder.Services.AddScoped<AuditService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 //  ADICIONAR PARA EMPRESAS
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
