@@ -31,6 +31,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Funcionario> Funcionarios { get; set; }
 
+    public DbSet<Notification> Notifications { get; set; }
+
     public override int SaveChanges()
     {
         ApplyTenantId();
@@ -198,8 +200,28 @@ public class AppDbContext : DbContext
                 .HasMaxLength(11);
         });
 
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(n => n.Id);
+
+            entity.Property(n => n.EmailDestino)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(n => n.Mensagem)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            entity.Property(n => n.Tipo)
+                .IsRequired();
+
+            entity.Property(n => n.DataEnvio)
+                .IsRequired();
+        });
+
         // Global Query Filters for Multi-Tenancy
         modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<Notification>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }
