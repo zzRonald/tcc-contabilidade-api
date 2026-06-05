@@ -1,50 +1,48 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Button } from '../components/Button';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { Building2, ArrowRight } from 'lucide-react';
 
 export const Home = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+
+  const isContadorOrAdmin = user?.tipoUsuario === 'Contador' || user?.tipoUsuario === 'Admin';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between items-center">
-            <div className="flex items-center">
-              <span className="text-xl font-bold text-blue-600">TCC Contabilidade</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-700">
-                <UserIcon className="h-5 w-5" />
-                <span className="text-sm font-medium">{user?.nome}</span>
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800 uppercase">
-                  {user?.tipoUsuario}
-                </span>
-              </div>
-              <Button variant="outline" size="sm" onClick={signOut} className="flex items-center space-x-1">
-                <LogOut className="h-4 w-4" />
-                <span>Sair</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="space-y-8">
+      <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+          Olá, {user?.nome}!
+        </h1>
+        <p className="mt-4 text-lg text-gray-500">
+          Bem-vindo ao painel do <span className="font-semibold text-blue-600">TCC Contabilidade</span>.
+          Aqui você pode gerenciar suas empresas e processos contábeis.
+        </p>
+      </div>
 
-      <main className="mx-auto max-w-7xl py-12 px-4 sm:px-6 lg:px-8">
-        <div className="rounded-lg border-2 border-dashed border-gray-200 bg-white p-12 text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
-            Bem-vindo ao Sistema
-          </h1>
-          <p className="mt-6 text-lg text-gray-500">
-            Você está autenticado como <span className="font-semibold text-gray-900">{user?.email}</span>.
-          </p>
-          <div className="mt-10 flex justify-center gap-x-6">
-            <p className="text-sm text-gray-400 italic">
-              Esta é uma área protegida. Somente usuários autenticados podem ver este conteúdo.
-            </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {isContadorOrAdmin && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+            <div className="p-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <Building2 className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Gestão de Empresas</h3>
+              <p className="mt-2 text-gray-500">
+                Cadastre novas empresas, consulte CNPJs e gerencie sua carteira de clientes.
+              </p>
+              <Link
+                to="/empresas"
+                className="mt-6 inline-flex items-center text-blue-600 font-semibold hover:text-blue-700"
+              >
+                Acessar agora
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
           </div>
-        </div>
-      </main>
+        )}
+
+        {/* Outros cards de funcionalidades futuras podem ser adicionados aqui */}
+      </div>
     </div>
   );
 };

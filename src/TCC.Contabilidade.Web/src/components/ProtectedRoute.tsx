@@ -1,8 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-export const ProtectedRoute = () => {
-  const { authenticated, loading } = useAuth();
+interface ProtectedRouteProps {
+  allowedRoles?: string[];
+}
+
+export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+  const { authenticated, loading, user } = useAuth();
 
   if (loading) {
     return (
@@ -14,6 +18,10 @@ export const ProtectedRoute = () => {
 
   if (!authenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && user && !allowedRoles.includes(user.tipoUsuario)) {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

@@ -5,6 +5,9 @@ import { PublicRoute } from './components/PublicRoute';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { RegisterInvite } from './pages/RegisterInvite';
+import { EmpresaList } from './pages/Empresas/EmpresaList';
+import { EmpresaForm } from './pages/Empresas/EmpresaForm';
+import { Layout } from './components/Layout/Layout';
 
 function App() {
   return (
@@ -19,7 +22,16 @@ function App() {
 
           {/* Rotas Protegidas */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Home />} />
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+
+              {/* Gestão de Empresas - Apenas Contador ou Admin */}
+              <Route element={<ProtectedRoute allowedRoles={['Contador', 'Admin']} />}>
+                <Route path="/empresas" element={<EmpresaList />} />
+                <Route path="/empresas/nova" element={<EmpresaForm />} />
+                <Route path="/empresas/editar/:id" element={<EmpresaForm />} />
+              </Route>
+            </Route>
           </Route>
 
           {/* Redirecionamento padrão */}
