@@ -28,10 +28,17 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Opcional: Redirecionar para login ou limpar storage
-      localStorage.removeItem('@TCC:token');
-      localStorage.removeItem('@TCC:user');
-      // window.location.href = '/login';
+      // Se não for uma tentativa de login falha, limpamos o token
+      // Usamos uma verificação insensível a maiúsculas para o endpoint de login
+      const isLoginRequest = error.config.url?.toLowerCase().includes('/auth/login');
+      if (!isLoginRequest) {
+        localStorage.removeItem('@TCC:token');
+        localStorage.removeItem('@TCC:user');
+
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+      }
     }
     return Promise.reject(error);
   }

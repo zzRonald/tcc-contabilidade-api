@@ -1,8 +1,10 @@
 export interface ApiResponse<T> {
-  status: boolean;
-  message: string;
-  data: T;
-  errors: string[];
+  sucesso: boolean;
+  mensagem: string;
+  dados: T;
+  paginacao?: PaginationMetadata;
+  erro?: unknown;
+  codigo?: number;
 }
 
 export interface PaginationMetadata {
@@ -10,8 +12,4 @@ export interface PaginationMetadata {
   tamanhoPagina: number;
   totalRegistros: number;
   totalPaginas: number;
-}
-
-export interface PagedApiResponse<T> extends ApiResponse<T> {
-  metadata?: PaginationMetadata;
 }
