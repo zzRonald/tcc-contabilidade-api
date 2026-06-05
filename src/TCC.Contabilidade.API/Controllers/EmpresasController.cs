@@ -52,6 +52,18 @@ public class EmpresasController : ControllerBase
             .Success(items, "Empresas listadas com sucesso", metadata));
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var (items, _) = await _service.GetAll(GetUserId(), 1, 1000);
+        var empresa = items.FirstOrDefault(e => e.Id == id);
+
+        if (empresa == null)
+            return NotFound(ApiResponseDTO<object>.Fail("Empresa não encontrada"));
+
+        return Ok(ApiResponseDTO<EmpresaResponseDto>.Success(empresa));
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, UpdateEmpresaDto dto)
     {
