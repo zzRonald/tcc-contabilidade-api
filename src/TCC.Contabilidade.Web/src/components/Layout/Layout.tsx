@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../Button';
-import { LogOut, User as UserIcon, Building2, Home as HomeIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, Building2, Home as HomeIcon, Mail } from 'lucide-react';
 
 export const Layout: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -11,6 +11,7 @@ export const Layout: React.FC = () => {
   const navItems = [
     { label: 'Início', path: '/', icon: HomeIcon },
     { label: 'Empresas', path: '/empresas', icon: Building2, roles: ['Contador', 'Admin'] },
+    { label: 'Convites', path: '/convites', icon: Mail, roles: ['Contador'] },
   ];
 
   return (
