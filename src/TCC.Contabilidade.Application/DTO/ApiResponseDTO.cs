@@ -15,7 +15,7 @@ public class ApiResponseDTO<T>
     public object? Erro { get; set; }
     public int? Codigo { get; set; }
 
-    public static ApiResponseDTO<T> Success(T dados, string mensagem = "Operação realizada com sucesso", PaginationMetadataDTO? paginacao = null)
+    public static ApiResponseDTO<T> Success(T? dados, string mensagem = "Operação realizada com sucesso", PaginationMetadataDTO? paginacao = null)
     {
         return new ApiResponseDTO<T>
         {

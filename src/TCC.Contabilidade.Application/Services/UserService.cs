@@ -121,4 +121,42 @@ public class UserService
 
         return senhaValida ? usuario : null;
     }
+
+    public async Task<User?> ObterPorIdAsync(Guid id)
+    {
+        return await _usuarioRepository.ObterPorIdAsync(id);
+    }
+
+    public async Task UpdateProfileAsync(Guid id, string nome, string email)
+    {
+        var usuario = await _usuarioRepository.ObterPorIdAsync(id)
+            ?? throw new Exception("Usuário não encontrado");
+
+        if (usuario.Email != email)
+        {
+            var existente = await _usuarioRepository.ObterPorEmailAsync(email);
+            if (existente != null && existente.Id != id)
+                throw new Exception("Email já está sendo utilizado por outro usuário");
+        }
+
+        usuario.Nome = nome;
+        usuario.Email = email;
+
+        await _usuarioRepository.AtualizarAsync(usuario);
+        await _usuarioRepository.SalvarAlteracoesAsync();
+    }
+
+    public async Task ChangePasswordAsync(Guid id, string senhaAtual, string novaSenha)
+    {
+        var usuario = await _usuarioRepository.ObterPorIdAsync(id)
+            ?? throw new Exception("Usuário não encontrado");
+
+        if (!BCrypt.Net.BCrypt.Verify(senhaAtual, usuario.SenhaHash))
+            throw new Exception("Senha atual incorreta");
+
+        usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(novaSenha);
+
+        await _usuarioRepository.AtualizarAsync(usuario);
+        await _usuarioRepository.SalvarAlteracoesAsync();
+    }
 }

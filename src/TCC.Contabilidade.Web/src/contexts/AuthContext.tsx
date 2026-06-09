@@ -58,6 +58,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('@TCC:user', JSON.stringify(updatedUser));
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -67,6 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signIn,
         signOut,
         signUpWithInvite,
+        updateUser,
       }}
     >
       {children}

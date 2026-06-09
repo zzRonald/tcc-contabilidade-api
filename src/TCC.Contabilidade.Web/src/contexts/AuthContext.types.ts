@@ -7,4 +7,5 @@ export interface AuthContextData {
   signIn: (data: LoginRequest) => Promise<void>;
   signOut: () => void;
   signUpWithInvite: (data: RegisterWithInviteRequest) => Promise<void>;
+  updateUser: (updatedUser: User) => void;
 }
