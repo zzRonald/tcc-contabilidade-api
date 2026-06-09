@@ -7,6 +7,7 @@ import { Login } from './pages/Login';
 import { RegisterInvite } from './pages/RegisterInvite';
 import { EmpresaList } from './pages/Empresas/EmpresaList';
 import { EmpresaForm } from './pages/Empresas/EmpresaForm';
+import { ConviteList } from './pages/Convites/ConviteList';
 import { Layout } from './components/Layout/Layout';
 
 function App() {
@@ -30,6 +31,11 @@ function App() {
                 <Route path="/empresas" element={<EmpresaList />} />
                 <Route path="/empresas/nova" element={<EmpresaForm />} />
                 <Route path="/empresas/editar/:id" element={<EmpresaForm />} />
+              </Route>
+
+              {/* Painel de Convites - Apenas Contador */}
+              <Route element={<ProtectedRoute allowedRoles={['Contador']} />}>
+                <Route path="/convites" element={<ConviteList />} />
               </Route>
             </Route>
           </Route>
