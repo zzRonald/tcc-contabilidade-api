@@ -14,6 +14,11 @@ public class UsuarioRepository : IUsuarioRepository
         _context = context;
     }
 
+    public async Task<User?> ObterPorIdAsync(Guid id)
+    {
+        return await _context.Usuarios.FindAsync(id);
+    }
+
     public async Task<User?> ObterPorEmailAsync(string email)
     {
         return await _context.Usuarios
@@ -23,6 +28,12 @@ public class UsuarioRepository : IUsuarioRepository
     public async Task AdicionarAsync(User usuario)
     {
         await _context.Usuarios.AddAsync(usuario);
+    }
+
+    public async Task AtualizarAsync(User usuario)
+    {
+        _context.Usuarios.Update(usuario);
+        await Task.CompletedTask;
     }
 
     public async Task SalvarAlteracoesAsync()

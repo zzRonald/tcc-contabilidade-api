@@ -8,6 +8,8 @@ import { RegisterInvite } from './pages/RegisterInvite';
 import { EmpresaList } from './pages/Empresas/EmpresaList';
 import { EmpresaForm } from './pages/Empresas/EmpresaForm';
 import { ConviteList } from './pages/Convites/ConviteList';
+import { Perfil } from './pages/Perfil/Perfil';
+import { Configuracoes } from './pages/Configuracoes/Configuracoes';
 import { Layout } from './components/Layout/Layout';
 
 function App() {
@@ -25,6 +27,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/perfil" element={<Perfil />} />
 
               {/* Gestão de Empresas - Apenas Contador ou Admin */}
               <Route element={<ProtectedRoute allowedRoles={['Contador', 'Admin']} />}>
@@ -36,6 +39,11 @@ function App() {
               {/* Painel de Convites - Apenas Contador */}
               <Route element={<ProtectedRoute allowedRoles={['Contador']} />}>
                 <Route path="/convites" element={<ConviteList />} />
+              </Route>
+
+              {/* Configurações - Apenas Contador ou Admin */}
+              <Route element={<ProtectedRoute allowedRoles={['Contador', 'Admin']} />}>
+                <Route path="/configuracoes" element={<Configuracoes />} />
               </Route>
             </Route>
           </Route>

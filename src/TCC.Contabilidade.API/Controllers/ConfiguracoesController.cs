@@ -13,10 +13,12 @@ namespace TCC.Contabilidade.API.Controllers;
 public class ConfiguracoesController : ControllerBase
 {
     private readonly CompanyConfigService _service;
+    private readonly AuditService _auditService;
 
-    public ConfiguracoesController(CompanyConfigService service)
+    public ConfiguracoesController(CompanyConfigService service, AuditService auditService)
     {
         _service = service;
+        _auditService = auditService;
     }
 
     private Guid GetUserId()
@@ -53,7 +55,11 @@ public class ConfiguracoesController : ControllerBase
              return BadRequest(ApiResponseDTO<object>.Fail("ID da empresa no DTO não coincide com o cabeçalho X-Company-Id."));
         }
 
-        await _service.Upsert(dto, GetUserId());
+        var userId = GetUserId();
+        await _service.Upsert(dto, userId);
+
+        await _auditService.RegistrarEvento("Atualização de Configurações da Empresa", "CompanyConfig", dto.EmpresaId.ToString(), userId);
+
         return Ok(ApiResponseDTO<object>.Success(null!, "Configurações atualizadas com sucesso"));
     }
 }

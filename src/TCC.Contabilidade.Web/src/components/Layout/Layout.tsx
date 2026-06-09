@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../Button';
-import { LogOut, User as UserIcon, Building2, Home as HomeIcon, Mail } from 'lucide-react';
+import { LogOut, User as UserIcon, Building2, Home as HomeIcon, Mail, Settings } from 'lucide-react';
 
 export const Layout: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -12,6 +12,7 @@ export const Layout: React.FC = () => {
     { label: 'Início', path: '/', icon: HomeIcon },
     { label: 'Empresas', path: '/empresas', icon: Building2, roles: ['Contador', 'Admin'] },
     { label: 'Convites', path: '/convites', icon: Mail, roles: ['Contador'] },
+    { label: 'Configurações', path: '/configuracoes', icon: Settings, roles: ['Contador', 'Admin'] },
   ];
 
   return (
@@ -50,7 +51,12 @@ export const Layout: React.FC = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="hidden sm:flex items-center space-x-2 text-gray-700">
+              <Link
+                to="/perfil"
+                className={`hidden sm:flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors ${
+                  location.pathname === '/perfil' ? 'text-blue-600' : ''
+                }`}
+              >
                 <UserIcon className="h-5 w-5" />
                 <div className="flex flex-col">
                   <span className="text-sm font-medium leading-none">{user?.nome}</span>
@@ -58,7 +64,7 @@ export const Layout: React.FC = () => {
                     {user?.tipoUsuario}
                   </span>
                 </div>
-              </div>
+              </Link>
               <Button variant="outline" size="sm" onClick={signOut} className="flex items-center space-x-1">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sair</span>
