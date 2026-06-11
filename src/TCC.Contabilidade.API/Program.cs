@@ -90,6 +90,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ConviteService>();
 builder.Services.AddScoped<CompanyConfigService>();
 builder.Services.AddScoped<AuditService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
