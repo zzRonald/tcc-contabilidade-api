@@ -52,4 +52,11 @@ public class ConviteRepository : IConviteRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> CountPendentesByContadorId(Guid contadorId)
+    {
+        return await _context.Convites
+            .Where(c => c.ContadorId == contadorId && !c.Utilizado && c.Expiracao > DateTime.UtcNow)
+            .CountAsync();
+    }
 }

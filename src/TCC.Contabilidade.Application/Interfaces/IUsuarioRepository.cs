@@ -9,4 +9,5 @@ public interface IUsuarioRepository
     Task AdicionarAsync(User usuario);
     Task AtualizarAsync(User usuario);
     Task SalvarAlteracoesAsync();
+    Task<int> CountClientesByContadorId(Guid contadorId);
 }

@@ -9,6 +9,7 @@ public interface IConviteRepository
     Task<List<Convite>> GetByContadorId(Guid contadorId);
     Task<(List<Convite> Items, int TotalCount)> GetPagedByContadorId(Guid contadorId, int page, int pageSize);
     Task SalvarAlteracoesAsync();
+    Task<int> CountPendentesByContadorId(Guid contadorId);
 }
 
    

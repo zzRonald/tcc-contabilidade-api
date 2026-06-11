@@ -83,4 +83,11 @@ public class EmpresaRepository : IEmpresaRepository
     {
         return await _context.UsuariosEmpresas.AnyAsync(ue => ue.UsuarioId == usuarioId && ue.EmpresaId == empresaId);
     }
+
+    public async Task<int> CountByUsuarioId(Guid usuarioId)
+    {
+        return await _context.UsuariosEmpresas
+            .Where(ue => ue.UsuarioId == usuarioId)
+            .CountAsync();
+    }
 }

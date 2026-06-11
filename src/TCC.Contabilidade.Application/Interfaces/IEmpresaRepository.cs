@@ -23,4 +23,6 @@ public interface IEmpresaRepository
     Task AddUsuarioEmpresaAsync(UsuarioEmpresa usuarioEmpresa);
 
     Task<bool> IsUsuarioVinculadoAsync(Guid usuarioId, Guid empresaId);
+
+    Task<int> CountByUsuarioId(Guid usuarioId);
 }

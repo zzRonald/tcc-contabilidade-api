@@ -40,4 +40,11 @@ public class UsuarioRepository : IUsuarioRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> CountClientesByContadorId(Guid contadorId)
+    {
+        return await _context.Usuarios
+            .Where(u => u.ContadorId == contadorId)
+            .CountAsync();
+    }
 }
