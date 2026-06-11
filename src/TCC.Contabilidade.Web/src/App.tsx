@@ -8,6 +8,7 @@ import { RegisterInvite } from './pages/RegisterInvite';
 import { EmpresaList } from './pages/Empresas/EmpresaList';
 import { EmpresaForm } from './pages/Empresas/EmpresaForm';
 import { ConviteList } from './pages/Convites/ConviteList';
+import { Auditoria } from './pages/Auditoria/Auditoria';
 import { Perfil } from './pages/Perfil/Perfil';
 import { Configuracoes } from './pages/Configuracoes/Configuracoes';
 import { Layout } from './components/Layout/Layout';
@@ -41,8 +42,9 @@ function App() {
                 <Route path="/convites" element={<ConviteList />} />
               </Route>
 
-              {/* Configurações - Apenas Contador ou Admin */}
+              {/* Auditoria e Configurações - Apenas Contador ou Admin */}
               <Route element={<ProtectedRoute allowedRoles={['Contador', 'Admin']} />}>
+                <Route path="/auditoria" element={<Auditoria />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
               </Route>
             </Route>
