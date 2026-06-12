@@ -33,6 +33,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Notification> Notifications { get; set; }
 
+    public DbSet<Competencia> Competencias { get; set; }
+
     public override int SaveChanges()
     {
         ApplyTenantId();
@@ -219,10 +221,32 @@ public class AppDbContext : DbContext
                 .IsRequired();
         });
 
+        modelBuilder.Entity<Competencia>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+
+            entity.Property(c => c.Mes).IsRequired();
+            entity.Property(c => c.Ano).IsRequired();
+            entity.Property(c => c.Status).IsRequired();
+            entity.Property(c => c.DataCriacao).IsRequired();
+
+            entity.Property(c => c.Observacoes)
+                .HasMaxLength(500);
+
+            entity.HasOne(c => c.Empresa)
+                .WithMany()
+                .HasForeignKey(c => c.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(c => new { c.EmpresaId, c.Mes, c.Ano })
+                .IsUnique();
+        });
+
         // Global Query Filters for Multi-Tenancy
         modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Notification>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<Competencia>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }
