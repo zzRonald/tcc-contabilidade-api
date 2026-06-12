@@ -97,6 +97,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 //  ADICIONAR PARA EMPRESAS
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<EmpresaService>();
+builder.Services.AddScoped<ICompetenciaRepository, CompetenciaRepository>();
+builder.Services.AddScoped<CompetenciaService>();
 
 // INTEGRAÇÕES
 builder.Services.AddHttpClient<CnpjIntegrationService>();
