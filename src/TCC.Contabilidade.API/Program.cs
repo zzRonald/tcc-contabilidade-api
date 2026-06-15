@@ -99,6 +99,8 @@ builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<EmpresaService>();
 builder.Services.AddScoped<ICompetenciaRepository, CompetenciaRepository>();
 builder.Services.AddScoped<CompetenciaService>();
+builder.Services.AddScoped<ISolicitacaoDocumentoRepository, SolicitacaoDocumentoRepository>();
+builder.Services.AddScoped<SolicitacaoDocumentoService>();
 
 // INTEGRAÇÕES
 builder.Services.AddHttpClient<CnpjIntegrationService>();
