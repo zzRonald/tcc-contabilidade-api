@@ -15,6 +15,7 @@ public class SolicitacaoDocumento : ITenantEntity
     public string? ObservacaoContador { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime? DataAtualizacao { get; set; }
+    public ICollection<Documento> Documentos { get; set; } = new List<Documento>();
 
     public SolicitacaoDocumento()
     {
