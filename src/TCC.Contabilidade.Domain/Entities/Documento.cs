@@ -1,3 +1,4 @@
+using TCC.Contabilidade.Domain.Enums;
 using TCC.Contabilidade.Domain.Interfaces;
 
 namespace TCC.Contabilidade.Domain.Entities;
@@ -15,6 +16,10 @@ public class Documento : ITenantEntity
     public string Extensao { get; set; } = string.Empty;
     public string MimeType { get; set; } = string.Empty;
     public DateTime DataCriacao { get; set; }
+    public StatusDocumento Status { get; set; }
+    public Guid? AnalisadoPorId { get; set; }
+    public DateTime? DataAnalise { get; set; }
+    public string? MotivoRejeicao { get; set; }
 
     // Propriedades de navegação
     public Empresa Empresa { get; set; } = null!;
@@ -26,5 +31,6 @@ public class Documento : ITenantEntity
     {
         Id = Guid.NewGuid();
         DataCriacao = DateTime.UtcNow;
+        Status = StatusDocumento.Pendente;
     }
 }

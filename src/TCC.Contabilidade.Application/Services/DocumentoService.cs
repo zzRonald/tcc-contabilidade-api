@@ -37,6 +37,70 @@ public class DocumentoService
         _competenciaRepository = competenciaRepository;
     }
 
+    public async Task<DocumentoResponseDto> AnalisarAsync(AnalisarDocumentoDto dto, Guid usuarioId)
+    {
+        // 1. Validar se o usuário é contador ou admin
+        var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId);
+        if (usuario == null || (usuario.TipoUsuario != TipoUsuario.Contador && usuario.TipoUsuario != TipoUsuario.Admin))
+            throw new Exception("Apenas contadores ou administradores podem analisar documentos");
+
+        // 2. Obter documento
+        var documento = await _documentoRepository.GetByIdAsync(dto.DocumentoId);
+        if (documento == null)
+            throw new Exception("Documento não encontrado");
+
+        // 3. Validar se o documento já foi aprovado (apenas admin pode re-analisar)
+        if (documento.Status == StatusDocumento.Aprovado && usuario.TipoUsuario != TipoUsuario.Admin)
+            throw new Exception("Este documento já foi aprovado e não pode ser alterado");
+
+        // 4. Validar acesso à empresa do documento
+        var vinculado = await _empresaRepository.IsUsuarioVinculadoAsync(usuarioId, documento.EmpresaId);
+        if (!vinculado && usuario.TipoUsuario != TipoUsuario.Admin)
+            throw new Exception("Usuário não tem acesso a esta empresa");
+
+        // 5. Se rejeitado, exigir motivo
+        if (!dto.Aprovado && string.IsNullOrWhiteSpace(dto.MotivoRejeicao))
+            throw new Exception("O motivo da rejeição é obrigatório");
+
+        // 6. Atualizar status
+        documento.Status = dto.Aprovado ? StatusDocumento.Aprovado : StatusDocumento.Rejeitado;
+        documento.AnalisadoPorId = usuarioId;
+        documento.DataAnalise = DateTime.UtcNow;
+        documento.MotivoRejeicao = dto.Aprovado ? null : dto.MotivoRejeicao;
+
+        // 7. Se houver solicitação e for aprovado, podemos marcar como concluída?
+        // O upload já marca como Enviado. Se for Rejeitado, talvez devesse voltar para Enviado (já está) ou Pendente?
+        // Se rejeitado, a solicitação deve permitir novo envio.
+        if (documento.SolicitacaoDocumentoId.HasValue)
+        {
+            var solicitacao = await _solicitacaoRepository.GetByIdAsync(documento.SolicitacaoDocumentoId.Value);
+            if (solicitacao != null)
+            {
+                if (dto.Aprovado)
+                {
+                    solicitacao.Status = StatusSolicitacaoDocumento.Concluido;
+                }
+                else
+                {
+                    // Se rejeitado, volta para pendente para que o cliente envie novamente
+                    solicitacao.Status = StatusSolicitacaoDocumento.Pendente;
+                    solicitacao.ObservacaoContador = $"Documento rejeitado: {dto.MotivoRejeicao}";
+                }
+                solicitacao.DataAtualizacao = DateTime.UtcNow;
+                await _solicitacaoRepository.UpdateAsync(solicitacao);
+            }
+        }
+
+        await _documentoRepository.SaveChangesAsync();
+        await _auditService.RegistrarEvento(
+            dto.Aprovado ? "APROVAR_DOCUMENTO" : "REJEITAR_DOCUMENTO",
+            "Documento",
+            documento.Id.ToString(),
+            usuarioId);
+
+        return MapToDto(documento);
+    }
+
     public async Task<DocumentoResponseDto> UploadAsync(UploadDocumentoDto dto, Guid usuarioId)
     {
         // 1. Validar acesso à empresa
@@ -90,6 +154,9 @@ public class DocumentoService
                     if (solicitacao.EmpresaId != dto.EmpresaId)
                         throw new Exception("Solicitação não pertence à empresa informada");
 
+                    if (solicitacao.Status == StatusSolicitacaoDocumento.Concluido)
+                        throw new Exception("Esta solicitação já foi concluída e não aceita novos documentos");
+
                     solicitacao.Status = StatusSolicitacaoDocumento.Enviado;
                     solicitacao.DataAtualizacao = DateTime.UtcNow;
                     await _solicitacaoRepository.UpdateAsync(solicitacao);
@@ -134,6 +201,10 @@ public class DocumentoService
         d.Tamanho,
         d.Extensao,
         d.MimeType,
-        d.DataCriacao
+        d.DataCriacao,
+        d.Status,
+        d.AnalisadoPorId,
+        d.DataAnalise,
+        d.MotivoRejeicao
     );
 }
