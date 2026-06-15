@@ -1,3 +1,5 @@
+using TCC.Contabilidade.Domain.Enums;
+
 namespace TCC.Contabilidade.Application.DTO.Documentos;
 
 public record DocumentoResponseDto(
@@ -10,5 +12,9 @@ public record DocumentoResponseDto(
     long Tamanho,
     string Extensao,
     string MimeType,
-    DateTime DataCriacao
+    DateTime DataCriacao,
+    StatusDocumento Status,
+    Guid? AnalisadoPorId,
+    DateTime? DataAnalise,
+    string? MotivoRejeicao
 );

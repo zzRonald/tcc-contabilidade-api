@@ -38,4 +38,19 @@ public class DocumentoController : ControllerBase
             return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
         }
     }
+
+    [HttpPost("analisar")]
+    public async Task<IActionResult> Analisar([FromBody] AnalisarDocumentoDto dto)
+    {
+        try
+        {
+            var result = await _service.AnalisarAsync(dto, GetUserId());
+            string acao = dto.Aprovado ? "aprovado" : "rejeitado";
+            return Ok(ApiResponseDTO<DocumentoResponseDto>.Success(result, $"Documento {acao} com sucesso"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
+        }
+    }
 }
