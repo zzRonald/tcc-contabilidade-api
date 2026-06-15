@@ -37,6 +37,8 @@ public class AppDbContext : DbContext
 
     public DbSet<SolicitacaoDocumento> SolicitacoesDocumentos { get; set; }
 
+    public DbSet<Documento> Documentos { get; set; }
+
     public override int SaveChanges()
     {
         ApplyTenantId();
@@ -266,6 +268,45 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<Documento>(entity =>
+        {
+            entity.HasKey(d => d.Id);
+
+            entity.Property(d => d.Nome)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(d => d.CaminhoArquivo)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(d => d.Extensao)
+                .HasMaxLength(10);
+
+            entity.Property(d => d.MimeType)
+                .HasMaxLength(100);
+
+            entity.HasOne(d => d.Empresa)
+                .WithMany()
+                .HasForeignKey(d => d.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.Competencia)
+                .WithMany()
+                .HasForeignKey(d => d.CompetenciaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.SolicitacaoDocumento)
+                .WithMany(s => s.Documentos)
+                .HasForeignKey(d => d.SolicitacaoDocumentoId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(d => d.Usuario)
+                .WithMany()
+                .HasForeignKey(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         // Global Query Filters for Multi-Tenancy
         modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
@@ -273,5 +314,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Competencia>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<SolicitacaoDocumento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<Documento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }
