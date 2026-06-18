@@ -39,6 +39,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Documento> Documentos { get; set; }
 
+    public DbSet<Obrigacao> Obrigacoes { get; set; }
+
     public override int SaveChanges()
     {
         ApplyTenantId();
@@ -307,6 +309,33 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<Obrigacao>(entity =>
+        {
+            entity.HasKey(o => o.Id);
+
+            entity.Property(o => o.Tipo).IsRequired();
+            entity.Property(o => o.Status).IsRequired();
+            entity.Property(o => o.DataVencimento).IsRequired();
+            entity.Property(o => o.DataCriacao).IsRequired();
+
+            entity.Property(o => o.Descricao)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(o => o.Observacoes)
+                .HasMaxLength(500);
+
+            entity.HasOne(o => o.Empresa)
+                .WithMany()
+                .HasForeignKey(o => o.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(o => o.Competencia)
+                .WithMany()
+                .HasForeignKey(o => o.CompetenciaId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         // Global Query Filters for Multi-Tenancy
         modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
@@ -315,5 +344,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Competencia>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<SolicitacaoDocumento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Documento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<Obrigacao>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }

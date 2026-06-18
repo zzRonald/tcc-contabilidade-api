@@ -102,6 +102,8 @@ builder.Services.AddScoped<CompetenciaService>();
 builder.Services.AddScoped<ISolicitacaoDocumentoRepository, SolicitacaoDocumentoRepository>();
 builder.Services.AddScoped<SolicitacaoDocumentoService>();
 builder.Services.AddScoped<IDocumentoRepository, DocumentoRepository>();
+builder.Services.AddScoped<IObrigacaoRepository, ObrigacaoRepository>();
+builder.Services.AddScoped<ObrigacaoService>();
 builder.Services.AddScoped<DocumentoService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
