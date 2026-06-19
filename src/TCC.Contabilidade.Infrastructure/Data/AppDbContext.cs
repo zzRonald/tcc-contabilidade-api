@@ -41,6 +41,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Obrigacao> Obrigacoes { get; set; }
 
+    public DbSet<GuiaPagamento> GuiasPagamento { get; set; }
+
     public override int SaveChanges()
     {
         ApplyTenantId();
@@ -336,6 +338,38 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<GuiaPagamento>(entity =>
+        {
+            entity.HasKey(g => g.Id);
+
+            entity.Property(g => g.Tipo).IsRequired();
+            entity.Property(g => g.Status).IsRequired();
+            entity.Property(g => g.Valor)
+                .IsRequired()
+                .HasPrecision(18, 2);
+
+            entity.Property(g => g.DataVencimento).IsRequired();
+            entity.Property(g => g.DataCriacao).IsRequired();
+
+            entity.Property(g => g.Observacoes)
+                .HasMaxLength(500);
+
+            entity.HasOne(g => g.Empresa)
+                .WithMany()
+                .HasForeignKey(g => g.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(g => g.Competencia)
+                .WithMany()
+                .HasForeignKey(g => g.CompetenciaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(g => g.Documento)
+                .WithMany()
+                .HasForeignKey(g => g.DocumentoId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
         // Global Query Filters for Multi-Tenancy
         modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
@@ -345,5 +379,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<SolicitacaoDocumento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Documento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Obrigacao>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<GuiaPagamento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }
