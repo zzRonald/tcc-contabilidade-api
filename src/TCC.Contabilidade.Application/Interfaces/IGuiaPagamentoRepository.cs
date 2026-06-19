@@ -18,4 +18,5 @@ public interface IGuiaPagamentoRepository
     Task RemoverAsync(GuiaPagamento guia);
     Task SalvarAlteracoesAsync();
     Task<int> CountVencidasByUsuarioIdAsync(Guid usuarioId);
+    Task<int> CountByCompetenciaIdAsync(Guid competenciaId, TCC.Contabilidade.Domain.Enums.StatusGuia? status = null, bool? apenasVencidas = null);
 }

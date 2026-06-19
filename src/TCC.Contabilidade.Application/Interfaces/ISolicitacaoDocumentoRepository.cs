@@ -9,4 +9,5 @@ public interface ISolicitacaoDocumentoRepository
     Task<(IEnumerable<SolicitacaoDocumento> Items, int TotalCount)> GetPagedByCompetenciaIdAsync(Guid competenciaId, int page, int pageSize);
     Task AddAsync(SolicitacaoDocumento solicitacao);
     Task UpdateAsync(SolicitacaoDocumento solicitacao);
+    Task<int> CountByCompetenciaIdAsync(Guid competenciaId);
 }

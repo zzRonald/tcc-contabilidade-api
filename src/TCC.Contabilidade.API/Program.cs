@@ -107,6 +107,7 @@ builder.Services.AddScoped<ObrigacaoService>();
 builder.Services.AddScoped<IGuiaPagamentoRepository, GuiaPagamentoRepository>();
 builder.Services.AddScoped<GuiaPagamentoService>();
 builder.Services.AddScoped<DocumentoService>();
+builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 // INTEGRAÇÕES

@@ -106,4 +106,25 @@ public class GuiaPagamentoRepository : IGuiaPagamentoRepository
             .Distinct()
             .CountAsync();
     }
+
+    public async Task<int> CountByCompetenciaIdAsync(Guid competenciaId, TCC.Contabilidade.Domain.Enums.StatusGuia? status = null, bool? apenasVencidas = null)
+    {
+        var query = _context.GuiasPagamento
+            .Where(g => g.CompetenciaId == competenciaId);
+
+        if (status.HasValue)
+        {
+            query = query.Where(g => g.Status == status.Value);
+        }
+
+        if (apenasVencidas == true)
+        {
+            var hoje = DateTime.UtcNow;
+            query = query.Where(g => g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Pago &&
+                                   g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Cancelado &&
+                                   g.DataVencimento < hoje);
+        }
+
+        return await query.CountAsync();
+    }
 }

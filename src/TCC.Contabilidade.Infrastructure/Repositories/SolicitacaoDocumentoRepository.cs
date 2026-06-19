@@ -63,4 +63,10 @@ public class SolicitacaoDocumentoRepository : ISolicitacaoDocumentoRepository
         _context.SolicitacoesDocumentos.Update(solicitacao);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> CountByCompetenciaIdAsync(Guid competenciaId)
+    {
+        return await _context.SolicitacoesDocumentos
+            .CountAsync(s => s.CompetenciaId == competenciaId);
+    }
 }
