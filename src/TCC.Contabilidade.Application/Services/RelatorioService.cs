@@ -13,6 +13,7 @@ public class RelatorioService : IRelatorioService
     private readonly IDocumentoRepository _documentoRepository;
     private readonly IObrigacaoRepository _obrigacaoRepository;
     private readonly IGuiaPagamentoRepository _guiaPagamentoRepository;
+    private readonly IPdfService _pdfService;
 
     public RelatorioService(
         IEmpresaRepository empresaRepository,
@@ -21,7 +22,8 @@ public class RelatorioService : IRelatorioService
         ISolicitacaoDocumentoRepository solicitacaoRepository,
         IDocumentoRepository documentoRepository,
         IObrigacaoRepository obrigacaoRepository,
-        IGuiaPagamentoRepository guiaPagamentoRepository)
+        IGuiaPagamentoRepository guiaPagamentoRepository,
+        IPdfService pdfService)
     {
         _empresaRepository = empresaRepository;
         _usuarioRepository = usuarioRepository;
@@ -30,6 +32,7 @@ public class RelatorioService : IRelatorioService
         _documentoRepository = documentoRepository;
         _obrigacaoRepository = obrigacaoRepository;
         _guiaPagamentoRepository = guiaPagamentoRepository;
+        _pdfService = pdfService;
     }
 
     public async Task<RelatorioMensalDTO> GetRelatorioMensalAsync(Guid empresaId, int mes, int ano, Guid usuarioId)
@@ -89,5 +92,11 @@ public class RelatorioService : IRelatorioService
         };
 
         return relatorio;
+    }
+
+    public async Task<byte[]> GetRelatorioMensalPdfAsync(Guid empresaId, int mes, int ano, Guid usuarioId)
+    {
+        var relatorio = await GetRelatorioMensalAsync(empresaId, mes, ano, usuarioId);
+        return _pdfService.GenerateMonthlyReportPdf(relatorio);
     }
 }
