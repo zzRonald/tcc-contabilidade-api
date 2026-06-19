@@ -6,9 +6,16 @@ namespace TCC.Contabilidade.Application.Interfaces;
 public interface IGuiaPagamentoRepository
 {
     Task<GuiaPagamento?> ObterPorIdAsync(Guid id);
-    Task<(IEnumerable<GuiaPagamento> Itens, int Total)> ObterPaginadoAsync(Guid empresaId, int pagina, int tamanhoPagina, Guid? competenciaId = null);
+    Task<(IEnumerable<GuiaPagamento> Itens, int Total)> ObterPaginadoAsync(
+        Guid empresaId,
+        int pagina,
+        int tamanhoPagina,
+        Guid? competenciaId = null,
+        bool? apenasVencidas = null,
+        bool? apenasAVencer = null);
     Task AdicionarAsync(GuiaPagamento guia);
     Task AtualizarAsync(GuiaPagamento guia);
     Task RemoverAsync(GuiaPagamento guia);
     Task SalvarAlteracoesAsync();
+    Task<int> CountVencidasByUsuarioIdAsync(Guid usuarioId);
 }

@@ -186,7 +186,9 @@ public class GuiaPagamentoService
             empresaId,
             filtros.Pagina,
             filtros.TamanhoPagina,
-            filtros.CompetenciaId);
+            filtros.CompetenciaId,
+            filtros.ApenasVencidas,
+            filtros.ApenasAVencer);
 
         var response = itens.Select(MapToResponse);
 
@@ -203,6 +205,9 @@ public class GuiaPagamentoService
 
     private static GuiaPagamentoResponseDTO MapToResponse(GuiaPagamento guia)
     {
+        bool estaVencida = (guia.Status != StatusGuia.Pago && guia.Status != StatusGuia.Cancelado) &&
+                           guia.DataVencimento < DateTime.UtcNow;
+
         return new GuiaPagamentoResponseDTO(
             guia.Id,
             guia.EmpresaId,
@@ -219,7 +224,7 @@ public class GuiaPagamentoService
             guia.DocumentoId,
             guia.ComprovanteId,
             guia.DataCriacao,
-            guia.DataVencimento < DateTime.UtcNow && guia.Status == StatusGuia.Pendente
+            estaVencida
         );
     }
 }

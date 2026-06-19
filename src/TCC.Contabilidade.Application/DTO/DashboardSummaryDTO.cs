@@ -21,6 +21,11 @@ public class DashboardSummaryDTO
     public int ConvitesPendentes { get; set; }
 
     /// <summary>
+    /// Quantidade de guias de pagamento vencidas.
+    /// </summary>
+    public int GuiasVencidas { get; set; }
+
+    /// <summary>
     /// Lista das atividades recentes registradas na auditoria para o usuário.
     /// </summary>
     public List<AuditLogResponseDTO> AtividadesRecentes { get; set; } = new();
