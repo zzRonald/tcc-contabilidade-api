@@ -104,6 +104,8 @@ builder.Services.AddScoped<SolicitacaoDocumentoService>();
 builder.Services.AddScoped<IDocumentoRepository, DocumentoRepository>();
 builder.Services.AddScoped<IObrigacaoRepository, ObrigacaoRepository>();
 builder.Services.AddScoped<ObrigacaoService>();
+builder.Services.AddScoped<IGuiaPagamentoRepository, GuiaPagamentoRepository>();
+builder.Services.AddScoped<GuiaPagamentoService>();
 builder.Services.AddScoped<DocumentoService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
