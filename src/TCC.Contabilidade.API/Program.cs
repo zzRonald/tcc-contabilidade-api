@@ -14,6 +14,8 @@ using TCC.Contabilidade.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// QuestPDF License
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 // =============================
 // JWT CONFIG
@@ -108,6 +110,7 @@ builder.Services.AddScoped<IGuiaPagamentoRepository, GuiaPagamentoRepository>();
 builder.Services.AddScoped<GuiaPagamentoService>();
 builder.Services.AddScoped<DocumentoService>();
 builder.Services.AddScoped<IRelatorioService, RelatorioService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();
 
 // INTEGRAÇÕES

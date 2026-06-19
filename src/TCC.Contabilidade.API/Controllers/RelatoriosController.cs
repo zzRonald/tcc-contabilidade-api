@@ -50,4 +50,37 @@ public class RelatoriosController : ControllerBase
             return BadRequest(ApiResponseDTO<RelatorioMensalDTO>.Fail(ex.Message));
         }
     }
+
+    [HttpGet("mensal/pdf")]
+    public async Task<IActionResult> GetRelatorioMensalPdf(
+        [FromQuery] Guid empresaId,
+        [FromQuery] int mes,
+        [FromQuery] int ano)
+    {
+        var usuarioIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(usuarioIdStr) || !Guid.TryParse(usuarioIdStr, out var usuarioId))
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail("Usuário não identificado."));
+        }
+
+        try
+        {
+            var pdfBytes = await _relatorioService.GetRelatorioMensalPdfAsync(empresaId, mes, ano, usuarioId);
+            var fileName = $"Relatorio_{mes:D2}_{ano}_{empresaId}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponseDTO<object>.Fail(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
+        }
+    }
 }
