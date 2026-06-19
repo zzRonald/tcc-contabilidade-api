@@ -5,5 +5,6 @@ public enum StatusGuia
     Pendente = 1,
     Pago = 2,
     Atrasado = 3,
-    Cancelado = 4
+    Cancelado = 4,
+    ComprovanteEnviado = 5
 }

@@ -11,17 +11,23 @@ public class GuiaPagamentoService
     private readonly ICompetenciaRepository _competenciaRepository;
     private readonly ITenantContext _tenantContext;
     private readonly AuditService _auditService;
+    private readonly DocumentoService _documentoService;
+    private readonly IUsuarioRepository _usuarioRepository;
 
     public GuiaPagamentoService(
         IGuiaPagamentoRepository repository,
         ICompetenciaRepository competenciaRepository,
         ITenantContext tenantContext,
-        AuditService auditService)
+        AuditService auditService,
+        DocumentoService documentoService,
+        IUsuarioRepository usuarioRepository)
     {
         _repository = repository;
         _competenciaRepository = competenciaRepository;
         _tenantContext = tenantContext;
         _auditService = auditService;
+        _documentoService = documentoService;
+        _usuarioRepository = usuarioRepository;
     }
 
     public async Task<GuiaPagamentoResponseDTO> CriarAsync(GuiaPagamentoRequestDTO request)
@@ -65,12 +71,72 @@ public class GuiaPagamentoService
         guia.DataVencimento = request.DataVencimento;
         guia.Observacoes = request.Observacoes;
         guia.DocumentoId = request.DocumentoId;
+        guia.ComprovanteId = request.ComprovanteId;
         guia.DataAtualizacao = DateTime.UtcNow;
 
         await _repository.AtualizarAsync(guia);
         await _repository.SalvarAlteracoesAsync();
 
         await _auditService.RegistrarEvento("ATUALIZAR_GUIA_PAGAMENTO", "GuiaPagamento", guia.Id.ToString());
+
+        return MapToResponse(guia);
+    }
+
+    public async Task<GuiaPagamentoResponseDTO> EnviarComprovanteAsync(Guid id, Microsoft.AspNetCore.Http.IFormFile arquivo, Guid usuarioId)
+    {
+        var guia = await _repository.ObterPorIdAsync(id);
+        if (guia == null)
+            throw new Exception("Guia de pagamento não encontrada.");
+
+        if (guia.Status == StatusGuia.Cancelado)
+            throw new Exception("Não é possível enviar comprovante para uma guia cancelada.");
+
+        var uploadDto = new TCC.Contabilidade.Application.DTO.Documentos.UploadDocumentoDto(
+            guia.EmpresaId,
+            guia.CompetenciaId,
+            null,
+            arquivo
+        );
+
+        var documento = await _documentoService.UploadAsync(uploadDto, usuarioId);
+
+        guia.ComprovanteId = documento.Id;
+        guia.Status = StatusGuia.ComprovanteEnviado;
+        guia.DataEnvioComprovante = DateTime.UtcNow;
+        guia.DataAtualizacao = DateTime.UtcNow;
+
+        await _repository.AtualizarAsync(guia);
+        await _repository.SalvarAlteracoesAsync();
+
+        await _auditService.RegistrarEvento("ENVIAR_COMPROVANTE_GUIA", "GuiaPagamento", guia.Id.ToString(), usuarioId);
+
+        return MapToResponse(guia);
+    }
+
+    public async Task<GuiaPagamentoResponseDTO> ConfirmarPagamentoAsync(Guid id, Guid usuarioId)
+    {
+        var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId);
+        if (usuario == null || (usuario.TipoUsuario != TipoUsuario.Contador && usuario.TipoUsuario != TipoUsuario.Admin))
+            throw new Exception("Apenas contadores ou administradores podem confirmar o pagamento de uma guia.");
+
+        var guia = await _repository.ObterPorIdAsync(id);
+        if (guia == null)
+            throw new Exception("Guia de pagamento não encontrada.");
+
+        if (guia.Status == StatusGuia.Pago)
+            throw new Exception("Esta guia já consta como paga.");
+
+        if (guia.Status == StatusGuia.Cancelado)
+            throw new Exception("Não é possível confirmar pagamento de uma guia cancelada.");
+
+        guia.Status = StatusGuia.Pago;
+        guia.DataPagamento = DateTime.UtcNow;
+        guia.DataAtualizacao = DateTime.UtcNow;
+
+        await _repository.AtualizarAsync(guia);
+        await _repository.SalvarAlteracoesAsync();
+
+        await _auditService.RegistrarEvento("CONFIRMAR_PAGAMENTO_GUIA", "GuiaPagamento", guia.Id.ToString(), usuarioId);
 
         return MapToResponse(guia);
     }
@@ -148,8 +214,10 @@ public class GuiaPagamentoService
             guia.DataVencimento,
             guia.Status,
             guia.DataPagamento,
+            guia.DataEnvioComprovante,
             guia.Observacoes,
             guia.DocumentoId,
+            guia.ComprovanteId,
             guia.DataCriacao,
             guia.DataVencimento < DateTime.UtcNow && guia.Status == StatusGuia.Pendente
         );

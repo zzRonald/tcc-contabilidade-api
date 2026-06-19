@@ -17,6 +17,12 @@ public class GuiasPagamentoController : ControllerBase
         _service = service;
     }
 
+    private Guid GetUserId()
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+        return claim != null ? Guid.Parse(claim.Value) : Guid.Empty;
+    }
+
     [HttpGet]
     public async Task<IActionResult> Listar([FromQuery] GuiaPagamentoFilterDTO filtros)
     {
@@ -42,6 +48,37 @@ public class GuiasPagamentoController : ControllerBase
         {
             var result = await _service.CriarAsync(request);
             return CreatedAtAction(nameof(ObterPorId), new { id = result.Id }, ApiResponseDTO<GuiaPagamentoResponseDTO>.Success(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
+        }
+    }
+
+    [Authorize]
+    [HttpPost("{id}/comprovante")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> EnviarComprovante(Guid id, Microsoft.AspNetCore.Http.IFormFile arquivo)
+    {
+        try
+        {
+            var result = await _service.EnviarComprovanteAsync(id, arquivo, GetUserId());
+            return Ok(ApiResponseDTO<GuiaPagamentoResponseDTO>.Success(result, "Comprovante enviado com sucesso."));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Contador,Admin")]
+    [HttpPost("{id}/confirmar-pagamento")]
+    public async Task<IActionResult> ConfirmarPagamento(Guid id)
+    {
+        try
+        {
+            var result = await _service.ConfirmarPagamentoAsync(id, GetUserId());
+            return Ok(ApiResponseDTO<GuiaPagamentoResponseDTO>.Success(result, "Pagamento confirmado com sucesso."));
         }
         catch (Exception ex)
         {
