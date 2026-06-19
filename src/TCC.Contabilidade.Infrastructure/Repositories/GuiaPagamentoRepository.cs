@@ -19,6 +19,7 @@ public class GuiaPagamentoRepository : IGuiaPagamentoRepository
         return await _context.GuiasPagamento
             .Include(g => g.Competencia)
             .Include(g => g.Documento)
+            .Include(g => g.Comprovante)
             .FirstOrDefaultAsync(g => g.Id == id);
     }
 
@@ -27,6 +28,7 @@ public class GuiaPagamentoRepository : IGuiaPagamentoRepository
         var query = _context.GuiasPagamento
             .Include(g => g.Competencia)
             .Include(g => g.Documento)
+            .Include(g => g.Comprovante)
             .Where(g => g.EmpresaId == empresaId);
 
         if (competenciaId.HasValue)

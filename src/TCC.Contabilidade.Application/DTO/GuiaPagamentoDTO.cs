@@ -22,8 +22,10 @@ public record GuiaPagamentoResponseDTO(
     DateTime DataVencimento,
     StatusGuia Status,
     DateTime? DataPagamento,
+    DateTime? DataEnvioComprovante,
     string? Observacoes,
     Guid? DocumentoId,
+    Guid? ComprovanteId,
     DateTime DataCriacao,
     bool EstaVencida
 );
@@ -46,5 +48,6 @@ public record UpdateGuiaPagamentoRequestDTO(
     decimal Valor,
     DateTime DataVencimento,
     string? Observacoes,
-    Guid? DocumentoId
+    Guid? DocumentoId,
+    Guid? ComprovanteId
 );

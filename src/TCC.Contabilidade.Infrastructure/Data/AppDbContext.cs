@@ -368,6 +368,11 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(g => g.DocumentoId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(g => g.Comprovante)
+                .WithMany()
+                .HasForeignKey(g => g.ComprovanteId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Global Query Filters for Multi-Tenancy

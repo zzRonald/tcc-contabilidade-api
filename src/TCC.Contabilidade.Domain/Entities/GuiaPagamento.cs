@@ -15,9 +15,12 @@ public class GuiaPagamento : ITenantEntity
     public DateTime DataVencimento { get; set; }
     public StatusGuia Status { get; set; }
     public DateTime? DataPagamento { get; set; }
+    public DateTime? DataEnvioComprovante { get; set; }
     public string? Observacoes { get; set; }
     public Guid? DocumentoId { get; set; }
     public Documento? Documento { get; set; }
+    public Guid? ComprovanteId { get; set; }
+    public Documento? Comprovante { get; set; }
     public DateTime DataCriacao { get; set; }
     public DateTime? DataAtualizacao { get; set; }
 
