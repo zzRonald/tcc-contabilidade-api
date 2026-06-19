@@ -28,4 +28,17 @@ public class DocumentoRepository : IDocumentoRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> CountByCompetenciaIdAsync(Guid competenciaId, TCC.Contabilidade.Domain.Enums.StatusDocumento? status = null)
+    {
+        var query = _context.Documentos
+            .Where(d => d.CompetenciaId == competenciaId);
+
+        if (status.HasValue)
+        {
+            query = query.Where(d => d.Status == status.Value);
+        }
+
+        return await query.CountAsync();
+    }
 }

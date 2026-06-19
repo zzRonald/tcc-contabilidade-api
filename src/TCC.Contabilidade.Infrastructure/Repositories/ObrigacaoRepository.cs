@@ -63,4 +63,25 @@ public class ObrigacaoRepository : IObrigacaoRepository
     {
         await _context.SaveChangesAsync();
     }
+
+    public async Task<int> CountByCompetenciaIdAsync(Guid competenciaId, TCC.Contabilidade.Domain.Enums.StatusObrigacao? status = null, bool? apenasAtrasadas = null)
+    {
+        var query = _context.Obrigacoes
+            .Where(o => o.CompetenciaId == competenciaId);
+
+        if (status.HasValue)
+        {
+            query = query.Where(o => o.Status == status.Value);
+        }
+
+        if (apenasAtrasadas == true)
+        {
+            var hoje = DateTime.UtcNow;
+            query = query.Where(o => o.Status != TCC.Contabilidade.Domain.Enums.StatusObrigacao.Concluida &&
+                                   o.Status != TCC.Contabilidade.Domain.Enums.StatusObrigacao.Cancelada &&
+                                   o.DataVencimento < hoje);
+        }
+
+        return await query.CountAsync();
+    }
 }

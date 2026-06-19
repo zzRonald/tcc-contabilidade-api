@@ -10,4 +10,5 @@ public interface IObrigacaoRepository
     Task AtualizarAsync(Obrigacao obrigacao);
     Task RemoverAsync(Obrigacao obrigacao);
     Task SalvarAlteracoesAsync();
+    Task<int> CountByCompetenciaIdAsync(Guid competenciaId, TCC.Contabilidade.Domain.Enums.StatusObrigacao? status = null, bool? apenasAtrasadas = null);
 }
