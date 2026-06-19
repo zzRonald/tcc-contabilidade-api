@@ -23,7 +23,13 @@ public class GuiaPagamentoRepository : IGuiaPagamentoRepository
             .FirstOrDefaultAsync(g => g.Id == id);
     }
 
-    public async Task<(IEnumerable<GuiaPagamento> Itens, int Total)> ObterPaginadoAsync(Guid empresaId, int pagina, int tamanhoPagina, Guid? competenciaId = null)
+    public async Task<(IEnumerable<GuiaPagamento> Itens, int Total)> ObterPaginadoAsync(
+        Guid empresaId,
+        int pagina,
+        int tamanhoPagina,
+        Guid? competenciaId = null,
+        bool? apenasVencidas = null,
+        bool? apenasAVencer = null)
     {
         var query = _context.GuiasPagamento
             .Include(g => g.Competencia)
@@ -34,6 +40,21 @@ public class GuiaPagamentoRepository : IGuiaPagamentoRepository
         if (competenciaId.HasValue)
         {
             query = query.Where(g => g.CompetenciaId == competenciaId.Value);
+        }
+
+        var hoje = DateTime.UtcNow;
+
+        if (apenasVencidas == true)
+        {
+            query = query.Where(g => g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Pago &&
+                                   g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Cancelado &&
+                                   g.DataVencimento < hoje);
+        }
+        else if (apenasAVencer == true)
+        {
+            query = query.Where(g => g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Pago &&
+                                   g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Cancelado &&
+                                   g.DataVencimento >= hoje);
         }
 
         var total = await query.CountAsync();
@@ -66,5 +87,23 @@ public class GuiaPagamentoRepository : IGuiaPagamentoRepository
     public async Task SalvarAlteracoesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<int> CountVencidasByUsuarioIdAsync(Guid usuarioId)
+    {
+        var hoje = DateTime.UtcNow;
+
+        return await _context.GuiasPagamento
+            .Join(_context.UsuariosEmpresas,
+                g => g.EmpresaId,
+                ue => ue.EmpresaId,
+                (g, ue) => new { Guia = g, UsuarioEmpresa = ue })
+            .Where(x => x.UsuarioEmpresa.UsuarioId == usuarioId &&
+                        x.Guia.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Pago &&
+                        x.Guia.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Cancelado &&
+                        x.Guia.DataVencimento < hoje)
+            .Select(x => x.Guia.Id)
+            .Distinct()
+            .CountAsync();
     }
 }

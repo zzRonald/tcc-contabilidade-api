@@ -35,6 +35,8 @@ public class GuiaPagamentoFilterDTO
     public int Pagina { get; set; } = 1;
     public int TamanhoPagina { get; set; } = 10;
     public Guid? CompetenciaId { get; set; }
+    public bool? ApenasVencidas { get; set; }
+    public bool? ApenasAVencer { get; set; }
 }
 
 public record UpdateGuiaPagamentoStatusRequestDTO(
