@@ -85,6 +85,7 @@ builder.Services.AddScoped<ICompanyConfigRepository, CompanyConfigRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IAuditRepository, AuditRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IComentarioRepository, ComentarioRepository>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<UserService>();
@@ -109,6 +110,7 @@ builder.Services.AddScoped<ObrigacaoService>();
 builder.Services.AddScoped<IGuiaPagamentoRepository, GuiaPagamentoRepository>();
 builder.Services.AddScoped<GuiaPagamentoService>();
 builder.Services.AddScoped<DocumentoService>();
+builder.Services.AddScoped<ComentarioService>();
 builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IStorageService, LocalStorageService>();

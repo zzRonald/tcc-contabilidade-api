@@ -43,6 +43,8 @@ public class AppDbContext : DbContext
 
     public DbSet<GuiaPagamento> GuiasPagamento { get; set; }
 
+    public DbSet<Comentario> Comentarios { get; set; }
+
     public override int SaveChanges()
     {
         ApplyTenantId();
@@ -375,6 +377,37 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
+        modelBuilder.Entity<Comentario>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+
+            entity.Property(c => c.Texto)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            entity.Property(c => c.DataCriacao).IsRequired();
+
+            entity.HasOne(c => c.Empresa)
+                .WithMany()
+                .HasForeignKey(c => c.EmpresaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(c => c.Usuario)
+                .WithMany()
+                .HasForeignKey(c => c.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(c => c.Documento)
+                .WithMany()
+                .HasForeignKey(c => c.DocumentoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(c => c.GuiaPagamento)
+                .WithMany()
+                .HasForeignKey(c => c.GuiaPagamentoId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         // Global Query Filters for Multi-Tenancy
         modelBuilder.Entity<CompanyConfig>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Funcionario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
@@ -385,5 +418,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Documento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<Obrigacao>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
         modelBuilder.Entity<GuiaPagamento>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
+        modelBuilder.Entity<Comentario>().HasQueryFilter(e => e.EmpresaId == _tenantContext.TenantId);
     }
 }
