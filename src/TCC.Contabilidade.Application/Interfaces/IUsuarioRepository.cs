@@ -11,4 +11,12 @@ public interface IUsuarioRepository
     Task SalvarAlteracoesAsync();
     Task<int> CountClientesByContadorId(Guid contadorId);
     Task<List<User>> ObterUsuariosPorEmpresaAsync(Guid empresaId);
+    Task<(IEnumerable<User> Usuarios, int Total)> ObterUsuariosPaginadosAsync(
+        string? nome = null,
+        string? email = null,
+        string? tipoUsuario = null,
+        bool? ativo = null,
+        Guid? contadorId = null,
+        int pagina = 1,
+        int tamanhoPagina = 10);
 }
