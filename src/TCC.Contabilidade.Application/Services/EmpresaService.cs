@@ -1,6 +1,7 @@
 ﻿using TCC.Contabilidade.Application.DTO.Empresas;
 using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.Interfaces;
+using TCC.Contabilidade.Application.Utils;
 using TCC.Contabilidade.Domain.Entities;
 
 namespace TCC.Contabilidade.Application.Services;
@@ -64,7 +65,7 @@ public class EmpresaService
             {
                 Id = e.Id,
                 NomeFantasia = e.Nome,
-                CNPJ = e.CNPJ
+                CNPJ = PrivacyUtils.MaskCnpj(e.CNPJ)
             }).ToList();
 
             var metadata = new PaginationMetadataDTO

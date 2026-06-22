@@ -31,11 +31,11 @@ public class AuthController : ControllerBase
                 request.Perfil
             );
 
-            return Ok(ApiResponseDTO<object>.Success(new
+            return Ok(ApiResponseDTO<UserRegistrationResponseDTO>.Success(new UserRegistrationResponseDTO
             {
-                usuario.Id,
-                usuario.Nome,
-                usuario.Email,
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
                 TipoUsuario = usuario.TipoUsuario.ToString()
             }));
         }
@@ -58,10 +58,12 @@ public class AuthController : ControllerBase
                 request.Senha
             );
 
-            return Ok(ApiResponseDTO<object>.Success(new
+            return Ok(ApiResponseDTO<UserRegistrationResponseDTO>.Success(new UserRegistrationResponseDTO
             {
-                user.Id,
-                user.Email
+                Id = user.Id,
+                Nome = user.Nome,
+                Email = user.Email,
+                TipoUsuario = user.TipoUsuario.ToString()
             }, "Cliente registrado com sucesso"));
         }
         catch (Exception ex)

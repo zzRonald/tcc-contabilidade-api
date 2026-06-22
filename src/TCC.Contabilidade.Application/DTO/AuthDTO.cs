@@ -16,6 +16,14 @@ public class UserResponseDTO
     public string TipoUsuario { get; set; } = string.Empty;
 }
 
+public class UserRegistrationResponseDTO
+{
+    public Guid Id { get; set; }
+    public string Nome { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string TipoUsuario { get; set; } = string.Empty;
+}
+
 public class RefreshTokenRequest
 {
     public string RefreshToken { get; set; } = string.Empty;
