@@ -1,6 +1,7 @@
 ﻿using BCrypt.Net;
 using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.Interfaces;
+using TCC.Contabilidade.Application.Utils;
 using TCC.Contabilidade.Domain.Entities;
 using TCC.Contabilidade.Domain.Enums;
 
@@ -201,7 +202,7 @@ public class UserService
         {
             Id = u.Id,
             Nome = u.Nome,
-            Email = u.Email,
+            Email = PrivacyUtils.MaskEmail(u.Email),
             TipoUsuario = u.TipoUsuario.ToString(),
             Ativo = u.Ativo
         });
@@ -246,6 +247,30 @@ public class UserService
 
         string acao = ativo ? "Ativação de Usuário" : "Inativação de Usuário";
         await _auditService.RegistrarEvento(acao, "User", usuario.Id.ToString(), executorId);
+    }
+
+    public async Task<object> ExportarDadosPessoaisAsync(Guid usuarioId)
+    {
+        var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId)
+            ?? throw new Exception("Usuário não encontrado");
+
+        return new
+        {
+            DadosPessoais = new
+            {
+                usuario.Nome,
+                usuario.Email,
+                Perfil = usuario.TipoUsuario.ToString(),
+                Status = usuario.Ativo ? "Ativo" : "Inativo"
+            },
+            Seguranca = new
+            {
+                EmailConfirmado = usuario.EmailConfirmado,
+                PossuiContadorVinculado = usuario.ContadorId.HasValue
+            },
+            DataExportacao = DateTime.UtcNow,
+            AvisoLegal = "Este arquivo contém seus dados pessoais tratados pelo sistema, em conformidade com a LGPD (Direito de Portabilidade)."
+        };
     }
 
     public async Task UpdateRoleAsync(Guid id, string novoPerfil, Guid executorId)

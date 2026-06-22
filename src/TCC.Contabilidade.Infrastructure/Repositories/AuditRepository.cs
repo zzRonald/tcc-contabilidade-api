@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TCC.Contabilidade.Application.DTO;
 using TCC.Contabilidade.Application.Interfaces;
+using TCC.Contabilidade.Application.Utils;
 using TCC.Contabilidade.Domain.Entities;
 using TCC.Contabilidade.Infrastructure.Data;
 
@@ -49,19 +50,31 @@ public class AuditRepository : IAuditRepository
             .OrderByDescending(a => a.DataHora)
             .Skip((filtros.Pagina - 1) * filtros.TamanhoPagina)
             .Take(filtros.TamanhoPagina)
-            .Select(audit => new AuditLogResponseDTO
+            .Select(audit => new
             {
-                Id = audit.Id,
-                UsuarioId = audit.UsuarioId,
+                audit.Id,
+                audit.UsuarioId,
                 UsuarioNome = _context.Usuarios.Where(u => u.Id == audit.UsuarioId).Select(u => u.Nome).FirstOrDefault(),
-                Acao = audit.Acao,
-                Entidade = audit.Entidade,
-                EntidadeId = audit.EntidadeId,
-                DataHora = audit.DataHora,
-                Ip = audit.Ip
+                audit.Acao,
+                audit.Entidade,
+                audit.EntidadeId,
+                audit.DataHora,
+                audit.Ip
             })
             .ToListAsync();
 
-        return (logs, total);
+        var logsDtos = logs.Select(audit => new AuditLogResponseDTO
+        {
+            Id = audit.Id,
+            UsuarioId = audit.UsuarioId,
+            UsuarioNome = audit.UsuarioNome,
+            Acao = audit.Acao,
+            Entidade = audit.Entidade,
+            EntidadeId = audit.EntidadeId,
+            DataHora = audit.DataHora,
+            Ip = PrivacyUtils.MaskIp(audit.Ip)
+        }).ToList();
+
+        return (logsDtos, total);
     }
 }

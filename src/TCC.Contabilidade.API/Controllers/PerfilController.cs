@@ -90,4 +90,22 @@ public class PerfilController : ControllerBase
             return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
         }
     }
+
+    [HttpGet("exportar-dados")]
+    public async Task<IActionResult> ExportarDados()
+    {
+        try
+        {
+            var userId = GetUserId();
+            var dados = await _userService.ExportarDadosPessoaisAsync(userId);
+
+            await _auditService.RegistrarEvento("Exportação de Dados Pessoais (LGPD)", "User", userId.ToString(), userId);
+
+            return Ok(ApiResponseDTO<object>.Success(dados, "Dados exportados com sucesso em conformidade com a LGPD"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponseDTO<object>.Fail(ex.Message));
+        }
+    }
 }
