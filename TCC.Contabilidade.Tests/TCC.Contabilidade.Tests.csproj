@@ -9,6 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -22,6 +26,8 @@
   <ItemGroup>
     <ProjectReference Include="..\src\TCC.Contabilidade.Application\TCC.Contabilidade.Application.csproj" />
     <ProjectReference Include="..\src\TCC.Contabilidade.Domain\TCC.Contabilidade.Domain.csproj" />
+    <ProjectReference Include="..\src\TCC.Contabilidade.API\TCC.Contabilidade.API.csproj" />
+    <ProjectReference Include="..\src\TCC.Contabilidade.Infrastructure\TCC.Contabilidade.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
