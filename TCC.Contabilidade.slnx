@@ -5,4 +5,5 @@
     <Project Path="src/TCC.Contabilidade.Domain/TCC.Contabilidade.Domain.csproj" />
     <Project Path="src/TCC.Contabilidade.Infrastructure/TCC.Contabilidade.Infrastructure.csproj" />
   </Folder>
+  <Project Path="TCC.Contabilidade.Tests/TCC.Contabilidade.Tests.csproj" />
 </Solution>

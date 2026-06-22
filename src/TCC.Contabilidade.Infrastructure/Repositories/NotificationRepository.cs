@@ -27,6 +27,14 @@ public class NotificationRepository : INotificationRepository
             .ToListAsync();
     }
 
+    public async Task<List<Notification>> GetByReferenciaIdAsync(Guid referenciaId, TCC.Contabilidade.Domain.Enums.TipoNotificacao tipo)
+    {
+        return await _context.Notifications
+            .IgnoreQueryFilters()
+            .Where(n => n.ReferenciaId == referenciaId && n.Tipo == tipo)
+            .ToListAsync();
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

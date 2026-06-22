@@ -68,6 +68,11 @@ public class AppDbContext : DbContext
                     {
                         entry.Entity.EmpresaId = _tenantContext.TenantId.Value;
                     }
+                    else if (entry.Entity.EmpresaId == Guid.Empty)
+                    {
+                         // Se não há contexto de tenant e não foi informado EmpresaId, poderíamos logar erro
+                         // No caso de background job, o EmpresaId deve ser informado manualmente na entidade
+                    }
                     break;
                 case EntityState.Modified:
                     // Impede que o EmpresaId seja alterado
@@ -219,6 +224,8 @@ public class AppDbContext : DbContext
             entity.Property(n => n.EmailDestino)
                 .IsRequired()
                 .HasMaxLength(150);
+
+            entity.Property(n => n.ReferenciaId);
 
             entity.Property(n => n.Mensagem)
                 .IsRequired()

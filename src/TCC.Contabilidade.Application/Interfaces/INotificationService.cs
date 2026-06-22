@@ -5,5 +5,7 @@ namespace TCC.Contabilidade.Application.Interfaces;
 
 public interface INotificationService
 {
-    Task EnviarNotificacaoAsync(string emailDestino, string mensagem, TipoNotificacao tipo, Guid? usuarioId = null);
+    Task EnviarNotificacaoAsync(string emailDestino, string mensagem, TipoNotificacao tipo, Guid? usuarioId = null, Guid? referenciaId = null, Guid? empresaId = null);
+    Task<bool> PossuiNotificacaoRecenteAsync(Guid referenciaId, TipoNotificacao tipo);
+    Task ProcessarNotificacoesVencimentoAsync();
 }

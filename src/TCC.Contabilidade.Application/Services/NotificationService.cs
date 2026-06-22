@@ -4,22 +4,36 @@ using TCC.Contabilidade.Domain.Enums;
 
 namespace TCC.Contabilidade.Application.Services;
 
+using Microsoft.Extensions.Logging;
+
 public class NotificationService : INotificationService
 {
     private readonly INotificationRepository _repository;
     private readonly IEmailService _emailService;
+    private readonly IGuiaPagamentoRepository _guiaRepository;
+    private readonly IObrigacaoRepository _obrigacaoRepository;
+    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly ILogger<NotificationService> _logger;
 
-    public NotificationService(INotificationRepository repository, IEmailService emailService)
+    public NotificationService(
+        INotificationRepository repository,
+        IEmailService emailService,
+        IGuiaPagamentoRepository guiaRepository,
+        IObrigacaoRepository obrigacaoRepository,
+        IUsuarioRepository usuarioRepository,
+        ILogger<NotificationService> logger)
     {
         _repository = repository;
         _emailService = emailService;
+        _guiaRepository = guiaRepository;
+        _obrigacaoRepository = obrigacaoRepository;
+        _usuarioRepository = usuarioRepository;
+        _logger = logger;
     }
 
-    public async Task EnviarNotificacaoAsync(string emailDestino, string mensagem, TipoNotificacao tipo, Guid? usuarioId = null)
+    public async Task EnviarNotificacaoAsync(string emailDestino, string mensagem, TipoNotificacao tipo, Guid? usuarioId = null, Guid? referenciaId = null, Guid? empresaId = null)
     {
-        // 1. Enviar E-mail (se falhar, logamos mas não impedimos a gravação se for requisito,
-        // mas aqui vamos tentar garantir o envio antes do registro ou tratar conforme o épico)
-
+        // 1. Enviar E-mail
         try
         {
             string assunto = GetAssuntoPorTipo(tipo);
@@ -27,10 +41,7 @@ public class NotificationService : INotificationService
         }
         catch (Exception ex)
         {
-            // Log do erro (Poderia usar um ILogger aqui se disponível)
-            Console.WriteLine($"Erro ao enviar e-mail de notificação: {ex.Message}");
-            // Dependendo do requisito, poderíamos relançar ou apenas seguir.
-            // O critério de aceite diz: "Falha no envio não quebra indevidamente a regra principal sem tratamento"
+            _logger.LogError(ex, "Erro ao enviar e-mail de notificação para {email}", emailDestino);
         }
 
         // 2. Registrar no Banco de Dados
@@ -38,6 +49,8 @@ public class NotificationService : INotificationService
         {
             Id = Guid.NewGuid(),
             UsuarioId = usuarioId,
+            ReferenciaId = referenciaId,
+            EmpresaId = empresaId ?? Guid.Empty,
             EmailDestino = emailDestino,
             Tipo = tipo,
             Mensagem = mensagem,
@@ -47,6 +60,51 @@ public class NotificationService : INotificationService
 
         await _repository.AddAsync(notification);
         await _repository.SaveChangesAsync();
+    }
+
+    public async Task<bool> PossuiNotificacaoRecenteAsync(Guid referenciaId, TipoNotificacao tipo)
+    {
+        // Consideramos recente se foi enviada nos últimos 7 dias para evitar spam de vencimento
+        var limite = DateTime.UtcNow.AddDays(-7);
+        var notificacoes = await _repository.GetByReferenciaIdAsync(referenciaId, tipo);
+        return notificacoes.Any(n => n.DataEnvio > limite);
+    }
+
+    public async Task ProcessarNotificacoesVencimentoAsync()
+    {
+        // 1. Processar Guias de Pagamento (Vencimento em 3 dias)
+        var guias = await _guiaRepository.ObterGuiasVencimentoProximoAsync(3);
+        foreach (var guia in guias)
+        {
+            if (await PossuiNotificacaoRecenteAsync(guia.Id, TipoNotificacao.Vencimento))
+                continue;
+
+            await NotificarUsuariosEmpresaAsync(guia.EmpresaId,
+                $"A guia {guia.Tipo} da empresa {guia.Empresa.Nome} vence em {guia.DataVencimento:dd/MM/yyyy}. Valor: R$ {guia.Valor:N2}",
+                guia.Id);
+        }
+
+        // 2. Processar Obrigações (Vencimento em 3 dias)
+        var obrigacoes = await _obrigacaoRepository.ObterObrigacoesVencimentoProximoAsync(3);
+        foreach (var obrigacao in obrigacoes)
+        {
+            if (await PossuiNotificacaoRecenteAsync(obrigacao.Id, TipoNotificacao.Vencimento))
+                continue;
+
+            await NotificarUsuariosEmpresaAsync(obrigacao.EmpresaId,
+                $"A obrigação {obrigacao.Tipo} ({obrigacao.Descricao}) da empresa {obrigacao.Empresa.Nome} vence em {obrigacao.DataVencimento:dd/MM/yyyy}.",
+                obrigacao.Id);
+        }
+    }
+
+    private async Task NotificarUsuariosEmpresaAsync(Guid empresaId, string mensagem, Guid referenciaId)
+    {
+        var usuarios = await _usuarioRepository.ObterUsuariosPorEmpresaAsync(empresaId);
+
+        foreach (var usuario in usuarios)
+        {
+            await EnviarNotificacaoAsync(usuario.Email, mensagem, TipoNotificacao.Vencimento, usuario.Id, referenciaId, empresaId);
+        }
     }
 
     private string GetAssuntoPorTipo(TipoNotificacao tipo)

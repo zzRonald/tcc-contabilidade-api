@@ -84,4 +84,20 @@ public class ObrigacaoRepository : IObrigacaoRepository
 
         return await query.CountAsync();
     }
+
+    public async Task<List<Obrigacao>> ObterObrigacoesVencimentoProximoAsync(int dias)
+    {
+        var hoje = DateTime.UtcNow.Date;
+        var dataLimite = hoje.AddDays(dias);
+
+        return await _context.Obrigacoes
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Include(o => o.Empresa)
+            .Where(o => o.Status != TCC.Contabilidade.Domain.Enums.StatusObrigacao.Concluida &&
+                       o.Status != TCC.Contabilidade.Domain.Enums.StatusObrigacao.Cancelada &&
+                       o.DataVencimento.Date >= hoje &&
+                       o.DataVencimento.Date <= dataLimite)
+            .ToListAsync();
+    }
 }
