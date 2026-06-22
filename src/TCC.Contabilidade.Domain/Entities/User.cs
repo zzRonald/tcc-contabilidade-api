@@ -18,6 +18,8 @@ public class User
 
     public string CodigoConfirmacao { get; set; } = string.Empty;
 
+    public bool Ativo { get; set; } = true;
+
     public Guid? ContadorId { get; set; }
 
     public User? Contador { get; set; }
