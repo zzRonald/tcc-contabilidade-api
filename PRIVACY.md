@@ -15,7 +15,7 @@ Este documento descreve os dados pessoais tratados pelo sistema **TCC Contabilid
 ## 2. Minimização de Dados
 
 O sistema adota o princípio de *privacy by design*, aplicando as seguintes técnicas:
-- **Mascaramento**: E-mails e IPs são mascarados em interfaces administrativas para evitar exposição desnecessária.
+- **Mascaramento**: E-mails, IPs e CNPJs são mascarados em listagens e interfaces administrativas para evitar exposição desnecessária.
 - **Hashing**: Senhas nunca são armazenadas em texto claro, utilizando algoritmos robustos (BCrypt).
 - **Limitação de Acesso**: O acesso aos dados é restrito com base no perfil do usuário (Contador, Cliente, Admin).
 

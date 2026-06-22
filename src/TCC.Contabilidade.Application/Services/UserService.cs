@@ -12,16 +12,19 @@ public class UserService
     // Repositórios
     private readonly IUsuarioRepository _usuarioRepository;
     private readonly IConviteRepository _conviteRepository;
+    private readonly IEmpresaRepository _empresaRepository;
     private readonly AuditService _auditService;
 
     // Construtor com injeção de dependência
     public UserService(
         IUsuarioRepository usuarioRepository,
         IConviteRepository conviteRepository,
+        IEmpresaRepository empresaRepository,
         AuditService auditService)
     {
         _usuarioRepository = usuarioRepository ?? throw new ArgumentNullException(nameof(usuarioRepository));
         _conviteRepository = conviteRepository ?? throw new ArgumentNullException(nameof(conviteRepository));
+        _empresaRepository = empresaRepository ?? throw new ArgumentNullException(nameof(empresaRepository));
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     }
 
@@ -249,21 +252,28 @@ public class UserService
         await _auditService.RegistrarEvento(acao, "User", usuario.Id.ToString(), executorId);
     }
 
-    public async Task<object> ExportarDadosPessoaisAsync(Guid usuarioId)
+    public async Task<UserExportDTO> ExportarDadosPessoaisAsync(Guid usuarioId)
     {
         var usuario = await _usuarioRepository.ObterPorIdAsync(usuarioId)
             ?? throw new Exception("Usuário não encontrado");
 
-        return new
+        var empresas = await _empresaRepository.GetAllByUsuarioId(usuarioId);
+
+        return new UserExportDTO
         {
-            DadosPessoais = new
+            DadosPessoais = new UserExportDadosPessoaisDTO
             {
-                usuario.Nome,
-                usuario.Email,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
                 Perfil = usuario.TipoUsuario.ToString(),
                 Status = usuario.Ativo ? "Ativo" : "Inativo"
             },
-            Seguranca = new
+            EmpresasVinculadas = empresas.Select(e => new UserExportEmpresaDTO
+            {
+                Nome = e.Nome,
+                CNPJ = PrivacyUtils.MaskCnpj(e.CNPJ)
+            }),
+            Seguranca = new UserExportSegurancaDTO
             {
                 EmailConfirmado = usuario.EmailConfirmado,
                 PossuiContadorVinculado = usuario.ContadorId.HasValue
