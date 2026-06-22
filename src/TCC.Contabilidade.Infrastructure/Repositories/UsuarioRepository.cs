@@ -47,4 +47,13 @@ public class UsuarioRepository : IUsuarioRepository
             .Where(u => u.ContadorId == contadorId)
             .CountAsync();
     }
+
+    public async Task<List<User>> ObterUsuariosPorEmpresaAsync(Guid empresaId)
+    {
+        return await _context.UsuariosEmpresas
+            .IgnoreQueryFilters()
+            .Where(ue => ue.EmpresaId == empresaId)
+            .Select(ue => ue.Usuario!)
+            .ToListAsync();
+    }
 }

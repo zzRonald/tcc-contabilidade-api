@@ -127,4 +127,20 @@ public class GuiaPagamentoRepository : IGuiaPagamentoRepository
 
         return await query.CountAsync();
     }
+
+    public async Task<List<GuiaPagamento>> ObterGuiasVencimentoProximoAsync(int dias)
+    {
+        var hoje = DateTime.UtcNow.Date;
+        var dataLimite = hoje.AddDays(dias);
+
+        return await _context.GuiasPagamento
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Include(g => g.Empresa)
+            .Where(g => g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Pago &&
+                       g.Status != TCC.Contabilidade.Domain.Enums.StatusGuia.Cancelado &&
+                       g.DataVencimento.Date >= hoje &&
+                       g.DataVencimento.Date <= dataLimite)
+            .ToListAsync();
+    }
 }

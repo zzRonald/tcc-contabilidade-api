@@ -11,4 +11,5 @@ public interface IObrigacaoRepository
     Task RemoverAsync(Obrigacao obrigacao);
     Task SalvarAlteracoesAsync();
     Task<int> CountByCompetenciaIdAsync(Guid competenciaId, TCC.Contabilidade.Domain.Enums.StatusObrigacao? status = null, bool? apenasAtrasadas = null);
+    Task<List<Obrigacao>> ObterObrigacoesVencimentoProximoAsync(int dias);
 }

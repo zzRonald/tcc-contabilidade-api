@@ -10,4 +10,5 @@ public interface IUsuarioRepository
     Task AtualizarAsync(User usuario);
     Task SalvarAlteracoesAsync();
     Task<int> CountClientesByContadorId(Guid contadorId);
+    Task<List<User>> ObterUsuariosPorEmpresaAsync(Guid empresaId);
 }

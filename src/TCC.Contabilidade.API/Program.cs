@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using TCC.Contabilidade.API.Middlewares;
+using TCC.Contabilidade.API.Services;
 using TCC.Contabilidade.Application.Interfaces;
 using TCC.Contabilidade.Application.Services;
 using TCC.Contabilidade.Infrastructure.Cache;
@@ -139,6 +140,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
+
+// BACKGROUND SERVICES
+builder.Services.AddHostedService<VencimentoBackgroundService>();
 
 // =============================
 // CORS CONFIG
