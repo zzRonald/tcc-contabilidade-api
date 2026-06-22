@@ -235,3 +235,5 @@ app.UseMiddleware<TCC.Contabilidade.API.Middlewares.RateLimitMiddleware>();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
