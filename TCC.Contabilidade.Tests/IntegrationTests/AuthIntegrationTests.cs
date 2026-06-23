@@ -10,15 +10,10 @@ using Xunit;
 
 namespace TCC.Contabilidade.Tests.IntegrationTests;
 
-public class AuthIntegrationTests : IClassFixture<IntegrationTestFactory>
+public class AuthIntegrationTests : BaseIntegrationTest
 {
-    private readonly IntegrationTestFactory _factory;
-    private readonly HttpClient _client;
-
-    public AuthIntegrationTests(IntegrationTestFactory factory)
+    public AuthIntegrationTests(IntegrationTestFactory factory) : base(factory)
     {
-        _factory = factory;
-        _client = factory.CreateClient();
     }
 
     [Fact]
@@ -29,7 +24,7 @@ public class AuthIntegrationTests : IClassFixture<IntegrationTestFactory>
         var password = "Password123!";
         var senhaHash = BCrypt.Net.BCrypt.HashPassword(password);
 
-        using (var scope = _factory.Services.CreateScope())
+        using (var scope = Factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var user = new User("Test User", email, senhaHash, TipoUsuario.Admin);
@@ -40,7 +35,7 @@ public class AuthIntegrationTests : IClassFixture<IntegrationTestFactory>
         var loginRequest = new { Email = email, Senha = password };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        var response = await Client.PostAsJsonAsync("/api/auth/login", loginRequest);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -58,11 +53,34 @@ public class AuthIntegrationTests : IClassFixture<IntegrationTestFactory>
         var loginRequest = new { Email = $"wrong_{Guid.NewGuid()}@example.com", Senha = "wrongpassword" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
+        var response = await Client.PostAsJsonAsync("/api/auth/login", loginRequest);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<ApiResponseDTO<object>>();
         Assert.False(result!.Sucesso);
+    }
+
+    [Fact]
+    public async Task Register_WithValidData_ReturnsSuccess()
+    {
+        // Arrange
+        var registerRequest = new
+        {
+            Nome = "Novo Usuario",
+            Email = $"novo_{Guid.NewGuid()}@example.com",
+            Senha = "Password123!",
+            Perfil = "Cliente"
+        };
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/register", registerRequest);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<ApiResponseDTO<UserRegistrationResponseDTO>>();
+        Assert.True(result!.Sucesso);
+        Assert.NotNull(result.Dados);
+        Assert.Equal(registerRequest.Email, result.Dados.Email);
     }
 }
