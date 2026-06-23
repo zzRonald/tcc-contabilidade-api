@@ -40,4 +40,14 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>
             services.AddScoped(_ => CnpjApiClientMock.Object);
         });
     }
+
+    public void ResetDatabase()
+    {
+        using (var scope = Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.EnsureDeleted();
+            db.Database.EnsureCreated();
+        }
+    }
 }
