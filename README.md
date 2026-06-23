@@ -148,22 +148,27 @@ com APIs externas.
 
 <hr>
 
-<h2>📋 Gerenciamento do Projeto</h2>
+<h2>📋 Documentação e Gerenciamento</h2>
 
 <p>
-O desenvolvimento do sistema é organizado utilizando recursos do GitHub:
+O projeto conta com documentação técnica detalhada para facilitar o entendimento da arquitetura e das decisões tomadas:
 </p>
 
 <ul>
+  <li><strong><a href="docs/Arquitetura.md">Arquitetura do Sistema</a>:</strong> Detalhes sobre camadas, multi-tenancy e segurança.</li>
+  <li><strong><a href="docs/DecisoesTecnicas.md">Decisões Técnicas</a>:</strong> Log de decisões arquiteturais e histórico de implementação.</li>
+  <li><strong><a href="docs/EndpointsAPI.md">Guia de API</a>:</strong> Documentação dos principais endpoints.</li>
+  <li><strong><a href="docs/CasosDeUso.md">Casos de Uso</a>:</strong> Definição das funcionalidades sob a ótica do usuário.</li>
+</ul>
 
+<p>
+O desenvolvimento é organizado utilizando recursos do GitHub:
+</p>
+
+<ul>
 <li><strong>Issues</strong> para planejamento técnico</li>
-
 <li><strong>Pull Requests</strong> para implementação de funcionalidades</li>
-
-<li>Documentação de arquitetura</li>
-
 <li>Critérios de aceite para cada tarefa</li>
-
 </ul>
 
 <hr>

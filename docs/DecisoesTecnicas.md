@@ -63,6 +63,36 @@ Controllers apenas orquestram requisições e delegam para services
 
 ---
 
+## DT-004 — Multi-Tenant (Isolamento de Dados)
+
+**Status:** [IMPLEMENTADO]
+
+**Decisão:**
+Implementação de arquitetura multi-tenant utilizando identificação via Token JWT e filtros globais no EF Core.
+
+**Motivação:**
+- Garantir isolamento lógico de dados entre diferentes empresas (clientes).
+- Segurança e escalabilidade.
+
+**Implicações:**
+- Middleware extrai `tenantId` do claim do token.
+- `AppDbContext` aplica `HasQueryFilter` em todas as entidades que implementam `ITenantEntity`.
+
+---
+
+## DT-005 — Camada de integração externa
+
+**Status:** [IMPLEMENTADO]
+
+**Decisão:**
+Criação de serviços especializados para consumo de APIs externas (ex: ReceitaWS para CNPJ).
+
+**Motivação:**
+- Desacoplamento de serviços externos.
+- Facilidade para mockar em testes.
+
+---
+
 # [IMPLEMENTADO] Segurança
 
 ## DT-010 — Autenticação com JWT
@@ -148,6 +178,19 @@ Limitar requisições em endpoints sensíveis
 **Implicações:**
 - Resposta HTTP 429
 - Controle por IP/usuário
+
+---
+
+## DT-015 — Refresh Token
+
+**Status:** [IMPLEMENTADO]
+
+**Decisão:**
+Implementação de Refresh Tokens para renovação de sessões sem necessidade de novo login manual.
+
+**Motivação:**
+- Melhorar a experiência do usuário (UX).
+- Manter segurança com tokens de acesso de curta duração.
 
 ---
 
@@ -249,101 +292,67 @@ Controlar alterações do banco via migrations
 
 ---
 
-# [PLANEJADO] Arquitetura e Escalabilidade
+# [IMPLEMENTADO] Observabilidade e Performance
 
-## DT-100 — Multi-Tenant
+## DT-050 — Auditoria de ações (Audit Log)
 
-**Status:** [PLANEJADO]
+**Status:** [IMPLEMENTADO]
 
 **Decisão:**
-Separar dados por empresa (tenant)
+Middleware que intercepta requisições de escrita para persistir trilha de auditoria.
 
 **Motivação:**
-- Escalabilidade
-- Isolamento de dados
+- Rastreabilidade de ações críticas (quem, quando, o quê).
+- Conformidade e segurança.
 
 ---
 
-## DT-101 — Camada de integração externa
+## DT-051 — Cache de dados em memória
 
-**Status:** [PLANEJADO]
+**Status:** [IMPLEMENTADO]
 
 **Decisão:**
-Criar camada dedicada para integrações
+Uso de `IMemoryCache` para dados consultados frequentemente e que mudam pouco (ex: configurações).
 
 **Motivação:**
-- Melhor organização
-- Reuso de integrações
+- Reduzir latência e carga no banco de dados.
 
 ---
 
-## DT-102 — Cache de dados
+## DT-052 — Paginação de listagens
 
-**Status:** [PLANEJADO]
+**Status:** [IMPLEMENTADO]
 
 **Decisão:**
-Implementar cache para otimizar performance
+Implementação de paginação (skip/take) em endpoints de busca e listagem.
 
 **Motivação:**
-- Reduzir chamadas externas
-- Melhorar tempo de resposta
+- Performance e economia de recursos (memória/banda).
 
 ---
 
-# [PLANEJADO] Segurança
+# [PLANEJADO] Próximos Passos
 
-## DT-110 — Refresh Token
+## DT-200 — Exportação de dados (LGPD)
 
 **Status:** [PLANEJADO]
 
 **Decisão:**
-Implementar refresh token
+Facilitar a exportação completa de dados do usuário em formato legível.
 
 **Motivação:**
-- Melhor experiência do usuário
-- Segurança
+- Conformidade total com LGPD.
 
 ---
 
-# [PLANEJADO] Observabilidade
-
-## DT-120 — Auditoria de ações
+## DT-201 — Dashboard Avançado com Gráficos
 
 **Status:** [PLANEJADO]
 
 **Decisão:**
-Registrar ações dos usuários
+Implementar métricas visuais e comparativos mensais.
 
 **Motivação:**
-- Rastreabilidade
-- Segurança
-
----
-
-## DT-121 — Logging estruturado
-
-**Status:** [PLANEJADO]
-
-**Decisão:**
-Implementar logs estruturados
-
-**Motivação:**
-- Debug eficiente
-- Monitoramento
-
----
-
-# [PLANEJADO] Performance
-
-## DT-130 — Paginação de endpoints
-
-**Status:** [PLANEJADO]
-
-**Decisão:**
-Paginar listagens
-
-**Motivação:**
-- Performance
-- Escalabilidade
+- Valor agregado para o usuário final.
 
 ---
